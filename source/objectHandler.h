@@ -26,10 +26,13 @@ class objectHandler
     unsigned int freeID;
     std::vector<renderObject> objectList;
     void renderPlane(renderObject item);
+    void renderTorus(renderObject item);
+    void renderCylinder(renderObject item);
 public:
     std::vector<renderObject> getObjectList(){ return objectList; }
     unsigned int addObject(glm::mat4 location, GLuint texture, std::string objectType, GLuint gProgramId);
     void renderAll();
 	objectHandler();
+    ~objectHandler();
 };
 

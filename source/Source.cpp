@@ -13,7 +13,7 @@
 
 #include <learnOpengl/camera.h> // Camera class
 
-#include "meshes.h"
+//#include "meshes.h"
 
 using namespace std; // Standard namespace
 
@@ -70,7 +70,7 @@ namespace
 	float gLastFrame = 0.0f;
 
 	//Shape Meshes from Professor Brian
-	Meshes meshes;
+	//Meshes meshes;
 }
 
 /* User-defined Function prototypes to:
@@ -86,12 +86,13 @@ void UMouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 //void UMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 //void UCreateMesh(GLMesh &mesh);
 //void UDestroyMesh(GLMesh &mesh);
-void URender(objectHandler items);
+void URender(objectHandler &items);
 bool UCreateTexture(const char* filename, GLuint& textureId);
 void UDestroyTexture(GLuint textureId);
 bool UCreateShaderProgram(const char* vtxShaderSource, const char* fragShaderSource, GLuint &programId);
 void UDestroyShaderProgram(GLuint programId);
 bool bindTex(const char* texFilename, GLuint& texToBind);
+void createObjects(objectHandler &items);
 
 
 /* Vertex Shader Source Code*/
@@ -179,7 +180,7 @@ int main(int argc, char* argv[])
 
 	// Create the mesh
 	//UCreateMesh(gMesh); // Calls the function to create the Vertex Buffer Object
-	meshes.CreateMeshes();
+	//meshes.CreateMeshes();
 
 	// Create the shader program
 	if (!UCreateShaderProgram(vertexShaderSource, fragmentShaderSource, gProgramId))
@@ -202,15 +203,8 @@ int main(int argc, char* argv[])
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
 	objectHandler items;
-	// 1. Scales the object
-	glm::mat4 scale = glm::scale(glm::vec3(6.0f, 1.0f, 6.0f));
-	// 2. Rotate the object
-	glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-	// 3. Position the object
-	glm::mat4 translation = glm::translate(glm::vec3(0.0f, 1.0f, 1.5f));
-	// Model matrix: transformations are applied right-to-left order
-	glm::mat4 model = translation * rotation * scale;
-	items.addObject(model, planeTex, "plane", gProgramId);
+	createObjects(items);
+
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(gWindow))
@@ -233,13 +227,13 @@ int main(int argc, char* argv[])
 
 	// Release mesh data
 	//UDestroyMesh(gMesh);
-	meshes.DestroyMeshes();
+	//meshes.DestroyMeshes();
 
 	// Release texture
-	UDestroyTexture(planeTex);
-	UDestroyTexture(waxTex);
-	UDestroyTexture(wickTex);
-	UDestroyTexture(glassTex);
+	//UDestroyTexture(planeTex);
+	//UDestroyTexture(waxTex);
+	//UDestroyTexture(wickTex);
+	//UDestroyTexture(glassTex);
 
 	// Release shader program
 	UDestroyShaderProgram(gProgramId);
@@ -354,18 +348,18 @@ void UResizeWindow(GLFWwindow* window, int width, int height)
 
 
 // Functioned called to render a frame
-void URender(objectHandler items)
+void URender(objectHandler &items)
 {
-	glm::mat4 scale;
-	glm::mat4 rotation;
-	glm::mat4 translation;
-	glm::mat4 model;
+	//glm::mat4 scale;
+	//glm::mat4 rotation;
+	//glm::mat4 translation;
+	//glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
-	GLint modelLoc;
+	//GLint modelLoc;
 	GLint viewLoc;
 	GLint projLoc;
-	GLint objectColorLoc;
+	//GLint objectColorLoc;
 
 	// Enable z-depth
 	glEnable(GL_DEPTH_TEST);
@@ -392,23 +386,23 @@ void URender(objectHandler items)
 	glUseProgram(gProgramId);
 
 	// Reference matrix uniforms from the Cube Shader program for the cub color, light color, light position, and camera position
-	objectColorLoc = glGetUniformLocation(gProgramId, "objectColor");
+	//objectColorLoc = glGetUniformLocation(gProgramId, "objectColor");
 	GLint lightColorLoc = glGetUniformLocation(gProgramId, "lightColor");
 	GLint lightPositionLoc = glGetUniformLocation(gProgramId, "lightPos");
 	GLint viewPositionLoc = glGetUniformLocation(gProgramId, "viewPosition");
 
 	// Pass color, light, and camera data to the Cube Shader program's corresponding uniforms
-	glUniform3f(objectColorLoc, 1.0f, 1.0f, 1.0f);
+	//glUniform3f(objectColorLoc, 1.0f, 1.0f, 1.0f);
 	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 	glUniform3f(lightPositionLoc, 1.0f, 3.0f, 1.0f);
 	const glm::vec3 cameraPosition = gCamera.Position;
 	glUniform3f(viewPositionLoc, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 	// Retrieves and passes transform matrices to the Shader program
-	modelLoc = glGetUniformLocation(gProgramId, "model");
+	//modelLoc = glGetUniformLocation(gProgramId, "model");
 	viewLoc = glGetUniformLocation(gProgramId, "view");
 	projLoc = glGetUniformLocation(gProgramId, "projection");
-	objectColorLoc = glGetUniformLocation(gProgramId, "uObjectColor");
+	//objectColorLoc = glGetUniformLocation(gProgramId, "uObjectColor");
 
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -552,7 +546,7 @@ void URender(objectHandler items)
 	//glBindVertexArray(0);
 
 	// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gCylinderMesh.vao);
+	/*glBindVertexArray(meshes.gCylinderMesh.vao);
 
 	// 1. Scales the object
 	scale = glm::scale(glm::vec3(1.0f, 0.05f, 0.9f));
@@ -576,10 +570,10 @@ void URender(objectHandler items)
 	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
 
 	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
 
 	// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gCylinderMesh.vao);
+	/*glBindVertexArray(meshes.gCylinderMesh.vao);
 
 	// 1. Scales the object
 	scale = glm::scale(glm::vec3(0.05f, 0.3f, 0.1f));
@@ -678,7 +672,7 @@ void URender(objectHandler items)
 	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
 
 	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
+	glBindVertexArray(0); */
 
 	//// Activate the VBOs contained within the mesh's VAO
 	//glBindVertexArray(meshes.gTaperedCylinderMesh.vao);
@@ -704,7 +698,7 @@ void URender(objectHandler items)
 	//glBindVertexArray(0);
 
 	//// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gTorusMesh.vao);
+	/*glBindVertexArray(meshes.gTorusMesh.vao);
 
 	// 1. Scales the object
 	scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -726,7 +720,7 @@ void URender(objectHandler items)
 
 	// Deactivate the Vertex Array Object
 	glBindVertexArray(0);
-
+	*/
 
 	//// Activate the VBOs contained within the mesh's VAO
 	//glBindVertexArray(meshes.gSphereMesh.vao);
@@ -992,4 +986,67 @@ bool bindTex(const char* texFilename, GLuint& texToBind) {
 	// We set the texture as texture unit 0
 	glUniform1i(glGetUniformLocation(gProgramId, "uTexture"), 0);
 	return true;
+}
+
+void createObjects(objectHandler &items) {
+	// 1. Scales the object
+	glm::mat4 scale = glm::scale(glm::vec3(6.0f, 1.0f, 6.0f));
+	// 2. Rotate the object
+	glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	glm::mat4 translation = glm::translate(glm::vec3(0.0f, 1.0f, 1.5f));
+	// Model matrix: transformations are applied right-to-left order
+	glm::mat4 model = translation * rotation * scale;
+	items.addObject(model, planeTex, "plane", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(180.0f, glm::vec3(0.8f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(0.0f, 2.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "torus", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 0.05f, 0.9f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(0.0f, 2.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, waxTex, "cylinder", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(0.05f, 0.3f, 0.1f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(-0.5f, 1.9f, 5.2f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, wickTex, "cylinder", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(0.05f, 0.3f, 0.1f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(0.5f, 1.9f, 5.7f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, wickTex, "cylinder", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(0.0f, 1.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "cylinder", gProgramId);
+
 }
