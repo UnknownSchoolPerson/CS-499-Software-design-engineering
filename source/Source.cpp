@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>     // GLFW library
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>      // Image loading Utility functions
+#include "objectHandler.h"
 
 // GLM Math Header inclusions
 #include <glm/glm.hpp>
@@ -85,7 +86,7 @@ void UMouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 //void UMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 //void UCreateMesh(GLMesh &mesh);
 //void UDestroyMesh(GLMesh &mesh);
-void URender();
+void URender(objectHandler items);
 bool UCreateTexture(const char* filename, GLuint& textureId);
 void UDestroyTexture(GLuint textureId);
 bool UCreateShaderProgram(const char* vtxShaderSource, const char* fragShaderSource, GLuint &programId);
@@ -199,7 +200,17 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	// Sets the background color of the window to black (it will be implicitely used by glClear)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
+	objectHandler items;
+	// 1. Scales the object
+	glm::mat4 scale = glm::scale(glm::vec3(6.0f, 1.0f, 6.0f));
+	// 2. Rotate the object
+	glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	glm::mat4 translation = glm::translate(glm::vec3(0.0f, 1.0f, 1.5f));
+	// Model matrix: transformations are applied right-to-left order
+	glm::mat4 model = translation * rotation * scale;
+	items.addObject(model, planeTex, "plane", gProgramId);
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(gWindow))
@@ -215,7 +226,7 @@ int main(int argc, char* argv[])
 		UProcessInput(gWindow);
 
 		// Render this frame
-		URender();
+		URender(items);
 
 		glfwPollEvents();
 	}
@@ -343,7 +354,7 @@ void UResizeWindow(GLFWwindow* window, int width, int height)
 
 
 // Functioned called to render a frame
-void URender()
+void URender(objectHandler items)
 {
 	glm::mat4 scale;
 	glm::mat4 rotation;
@@ -405,30 +416,32 @@ void URender()
 	GLint UVScaleLoc = glGetUniformLocation(gProgramId, "uvScale");
 	glUniform2fv(UVScaleLoc, 1, glm::value_ptr(gUVScale));
 
+	items.renderAll();
 	// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gPlaneMesh.vao);
+	//glBindVertexArray(meshes.gPlaneMesh.vao);
 
 	// bind textures on corresponding texture units
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, planeTex);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, planeTex);
 
 	// 1. Scales the object
-	scale = glm::scale(glm::vec3(6.0f, 1.0f, 6.0f));
+	//scale = glm::scale(glm::vec3(6.0f, 1.0f, 6.0f));
 	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	//rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 	// 3. Position the object
-	translation = glm::translate(glm::vec3(0.0f, 1.0f, 1.5f));
+	//translation = glm::translate(glm::vec3(0.0f, 1.0f, 1.5f));
 	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	//model = translation * rotation * scale;
 
-	glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
+	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	//glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
 
 	// Draws the triangles
-	glDrawElements(GL_TRIANGLES, meshes.gPlaneMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
+	//glDrawElements(GL_TRIANGLES, meshes.gPlaneMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
 
 	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -551,7 +564,7 @@ void URender()
 	model = translation * rotation * scale;
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	glProgramUniform4f(gProgramId, objectColorLoc, 0.8f, 1.0f, 0.9f, 1.0f);
+	//glProgramUniform4f(gProgramId, objectColorLoc, 0.8f, 1.0f, 0.9f, 1.0f);
 
 	// bind textures on corresponding texture units
 	glActiveTexture(GL_TEXTURE0);
