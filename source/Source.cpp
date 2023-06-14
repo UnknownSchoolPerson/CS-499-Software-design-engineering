@@ -73,7 +73,7 @@ namespace
 	//m::vec3 gObjectColor(0.6f, 0.5f, 0.75f);
 	//glm::vec3 gObjectColor(1.f, 0.2f, 0.0f);
 	glm::vec3 gLightColor(1.0f, 1.0f, 1.0f);
-	glm::vec3 gSecondLightColor(0.0f, 0.6f, 0.0f);
+	glm::vec3 gSecondLightColor(0.5f, 0.0f, 0.5f);
 	//GLfloat specularIntensity = 0.8f;
 	//GLfloat highlightSize = 16.0f;
 

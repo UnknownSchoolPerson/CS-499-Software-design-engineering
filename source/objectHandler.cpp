@@ -20,10 +20,6 @@ void objectHandler::renderPlane(objectHandler::renderObject item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gPlaneMesh.vao);
 
-    // bind textures on corresponding texture units
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, item.texture);
-
     glm::mat4 model = item.location;
     glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -43,9 +39,6 @@ void objectHandler::renderTorus(objectHandler::renderObject item) {
     glm::mat4 model = item.location;
     glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, item.texture);
-
     //glProgramUniform4f(item.gProgramId, objectColorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 
     // Draws the triangles
@@ -64,9 +57,6 @@ void objectHandler::renderCylinder(objectHandler::renderObject item) {
     //https://www.tug.org/pracjourn/2007-4/walden/color.pdf
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.8f, 1.0f, 0.9f, 1.0f);
 
-    // bind textures on corresponding texture units
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, item.texture);
 
     // Draws the triangles
     glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
@@ -86,10 +76,6 @@ void objectHandler::renderSphere(objectHandler::renderObject item) {
     glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-
-     // bind textures on corresponding texture units
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, item.texture);
 
     // Draws the triangles
     glDrawElements(GL_TRIANGLES, meshes.gSphereMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
@@ -189,9 +175,6 @@ void objectHandler::renderBox(objectHandler::renderObject item) {
     glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(item.gProgramId, objectColorLoc, 0.5f, 0.5f, 0.0f, 1.0f);
-    // bind textures on corresponding texture units
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, item.texture);
 
     // Draws the triangles
     glDrawElements(GL_TRIANGLES, meshes.gBoxMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
@@ -219,6 +202,9 @@ unsigned int objectHandler::addObject(glm::mat4 location, GLuint texture, string
 
 void objectHandler::renderAll() {
     for (auto& item : objectList) {
+        // bind textures on corresponding texture units
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, item.texture);
         switch (item.mesh)
         {
             case Plane:
@@ -254,6 +240,8 @@ void objectHandler::renderAll() {
             default:
                 break;
         }
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 objectHandler::~objectHandler() {
