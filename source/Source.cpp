@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
 	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
 	objectHandler items;
 	createObjects(items);
-	createTestObjects(items);
+	//createTestObjects(items);
 
 	// render loop
 	// -----------

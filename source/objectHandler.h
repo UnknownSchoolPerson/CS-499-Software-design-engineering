@@ -3,6 +3,7 @@
 #include <GL/glew.h>        // GLEW library
 #include <GLFW/glfw3.h>     // GLFW library
 #include <string>
+#include <map>
 
 // GLM Math Header inclusions
 #include <glm/glm.hpp>
@@ -13,9 +14,9 @@ class objectHandler
 {
     enum meshShape
     {
-        plane,
-        torus,
-        cylinder,
+        Plane,
+        Torus,
+        Cylinder,
         Sphere,
         TaperedCylinder,
         Cone,
@@ -23,6 +24,19 @@ class objectHandler
         Pyramid,
         Pyramid3,
         Box
+    };
+
+    std::map<std::string, meshShape> strToMesh = {
+        {"plane", Plane},
+        {"torus", Torus},
+        {"cylinder", Cylinder},
+        {"sphere", Sphere},
+        {"taperedcylinder", TaperedCylinder},
+        {"cone", Cone},
+        {"prism", Prism},
+        {"pyramid", Pyramid},
+        {"pyramid3", Pyramid3},
+        {"box", Box}
     };
     struct renderObject
     {

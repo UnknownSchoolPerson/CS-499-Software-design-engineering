@@ -206,28 +206,9 @@ unsigned int objectHandler::addObject(glm::mat4 location, GLuint texture, string
     item.texture = texture;
     for (int i = 0; i < objectType.length(); i++)
         objectType[i] = tolower(objectType[i]);
-    if (objectType == "plane")
-        item.mesh = plane;
-    else if (objectType == "torus")
-        item.mesh = torus;
-    else if (objectType == "cylinder")
-        item.mesh = cylinder;
-    else if (objectType == "sphere")
-        item.mesh = Sphere;
-    else if (objectType == "taperedcylinder")
-        item.mesh = TaperedCylinder;
-    else if (objectType == "cone")
-        item.mesh = Cone;
-    else if (objectType == "prism")
-        item.mesh = Prism;
-    else if (objectType == "pyramid")
-        item.mesh = Pyramid;
-    else if (objectType == "pyramid3")
-        item.mesh = Pyramid3;
-    else if (objectType == "box")
-        item.mesh = Box;
-    else
+    if (!strToMesh.count(objectType))
         throw invalid_argument("Invalid objectType");
+    item.mesh = strToMesh[objectType];
     item.modelLoc = glGetUniformLocation(gProgramId, "model");
     //item.viewLoc = glGetUniformLocation(gProgramId, "view");
     //item.projLoc = glGetUniformLocation(gProgramId, "projection");
@@ -240,13 +221,13 @@ void objectHandler::renderAll() {
     for (auto& item : objectList) {
         switch (item.mesh)
         {
-            case plane:
+            case Plane:
                 renderPlane(item);
                 break;
-            case torus:
+            case Torus:
                 renderTorus(item);
                 break;
-            case cylinder:
+            case Cylinder:
                 renderCylinder(item);
                 break;
             case Sphere:
