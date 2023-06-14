@@ -96,7 +96,8 @@ namespace
 	// Cube and light color
 	//m::vec3 gObjectColor(0.6f, 0.5f, 0.75f);
 	//glm::vec3 gObjectColor(1.f, 0.2f, 0.0f);
-	glm::vec3 gLightColor(1.0f, 1.0f, 1.0f);
+	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
+	glm::vec3 gLightColor(1.0f, 1.0f, .4f);
 	glm::vec3 gSecondLightColor(1.0f, 1.0f, 1.0f);
 	//GLfloat specularIntensity = 0.8f;
 	//GLfloat highlightSize = 16.0f;
@@ -835,10 +836,10 @@ void URender(objectHandler &items)
 	// Pass color, light, and camera data to the Cube Shader program's corresponding uniforms
 	//glUniform3f(objectColorLoc, gObjectColor.r, gObjectColor.g, gObjectColor.b);
 	glUniform3f(ambientColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
-	glUniform3f(lightColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
-	glUniform3f(light2ColorLoc, gLightColor.r, gLightColor.g, gLightColor.b);
-	glUniform3f(lightPositionLoc, gSecondLightColor.x, gSecondLightColor.y, gSecondLightColor.z);
-	glUniform3f(light2PositionLoc, gLightPosition.x, gLightPosition.y, gLightPosition.z);
+	glUniform3f(light2ColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
+	glUniform3f(lightColorLoc, gLightColor.r, gLightColor.g, gLightColor.b);
+	glUniform3f(light2PositionLoc, gSecondLightColor.x, gSecondLightColor.y, gSecondLightColor.z);
+	glUniform3f(lightPositionLoc, gLightPosition.x, gLightPosition.y, gLightPosition.z);
 
 	const glm::vec3 cameraPosition = gCamera.Position;
 	glUniform3f(viewPositionLoc, cameraPosition.x, cameraPosition.y, cameraPosition.z);
