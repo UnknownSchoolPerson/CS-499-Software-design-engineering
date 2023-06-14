@@ -12,20 +12,7 @@
 #include "meshes.h"
 class objectHandler
 {
-    enum meshShape
-    {
-        Plane,
-        Torus,
-        Cylinder,
-        Sphere,
-        TaperedCylinder,
-        Cone,
-        Prism,
-        Pyramid,
-        Pyramid3,
-        Box
-    };
-
+    enum meshShape;
     std::map<std::string, meshShape> strToMesh = {
         {"plane", Plane},
         {"torus", Torus},
@@ -63,6 +50,19 @@ class objectHandler
     void renderPyramid3(renderObject item);
     void renderBox(renderObject item);
 public:
+    enum meshShape
+    {
+        Plane,
+        Torus,
+        Cylinder,
+        Sphere,
+        TaperedCylinder,
+        Cone,
+        Prism,
+        Pyramid,
+        Pyramid3,
+        Box
+    };
     std::vector<renderObject>* getObjectList(){ return &objectList; }
     unsigned int addObject(glm::mat4 location, GLuint texture, std::string objectType, GLuint gProgramId);
     void renderAll();

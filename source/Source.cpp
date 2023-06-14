@@ -125,7 +125,7 @@ void UDestroyShaderProgram(GLuint programId);
 bool bindTex(const char* texFilename, GLuint& texToBind);
 void createObjects(objectHandler &items);
 void createTestObjects(objectHandler& items);
-void objectChanger(objectHandler& items, int key, bool print = false);
+void objectChanger(objectHandler& items, int key);
 
 
 /* Vertex Shader Source Code*/
@@ -288,6 +288,8 @@ int main(int argc, char* argv[])
 	cout << "] - Change Object" << endl;
 	cout << "Z - Enable/Disable Selected Object Texture" << endl;
 	cout << "X - Dump selected object Matrix" << endl;
+	cout << "C - Change Object Shape" << endl;
+	cout << "V - Spawn Object (Always at 5, 5, 0 with no changes, make sure to look up!)" << endl;
 
 
 
@@ -456,6 +458,15 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	{
 		keyUp[GLFW_KEY_0] = true;
 	}
+	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_V] = true;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_C] = true;
+	}
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && keyUp[GLFW_KEY_P])
 	{
 		keyUp[GLFW_KEY_P] = false;
@@ -567,7 +578,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && keyUp[GLFW_KEY_X])
 	{
 		keyUp[GLFW_KEY_X] = false;
-		objectChanger(items, GLFW_KEY_X, true);
+		objectChanger(items, GLFW_KEY_X);
 	}
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && keyUp[GLFW_KEY_1])
 	{
@@ -611,8 +622,8 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	}
 	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS && keyUp[GLFW_KEY_7])
 	{
-		keyUp[GLFW_KEY_6] = false;
-		if (editX) {
+		keyUp[GLFW_KEY_7] = false;
+		if (editY) {
 			cout << "Y won't be changed." << endl;
 			editY = false;
 		}
@@ -623,7 +634,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	}
 	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS && keyUp[GLFW_KEY_8])
 	{
-		keyUp[GLFW_KEY_6] = false;
+		keyUp[GLFW_KEY_8] = false;
 		if (editZ) {
 			cout << "Z won't be changed." << endl;
 			editZ = false;
@@ -633,12 +644,41 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			editZ = true;
 		}
 	}
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && keyUp[GLFW_KEY_C])
+	{
+		keyUp[GLFW_KEY_C] = false;
+		objectChanger(items, GLFW_KEY_C);
+	}
+	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS && keyUp[GLFW_KEY_V])
+	{
+		keyUp[GLFW_KEY_V] = false;
+		// 1. Scales the object
+		glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+		// 2. Rotate the object
+		glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		// 3. Position the object
+		glm::mat4 translation = glm::translate(glm::vec3(5.0f, 5.0f, 0.0f));
+		// Model matrix: transformations are applied right-to-left order
+		glm::mat4 model = translation * rotation * scale;
+		items.addObject(model, glassTex, "box", gProgramId);
+		cout << "Object Spawned! Look up!" << endl;
+	}
 }
 
-void objectChanger(objectHandler& items, int key, bool print) {
+void objectChanger(objectHandler& items, int key) {
 	auto* vec = items.getObjectList();
-	if (print) {
-		std::cout << glm::to_string(vec->at(vecSpot).location) << std::endl;
+	if (key == GLFW_KEY_X) {
+		cout << glm::to_string(vec->at(vecSpot).location) << std::endl;
+		return;
+	}
+	if (key == GLFW_KEY_C) {
+
+		int num = vec->at(vecSpot).mesh;
+		num++;
+		if (num >= 10)
+			num = 0;
+		vec->at(vecSpot).mesh = objectHandler::meshShape(num);
+		cout << "Object shape is now ID " << endl;
 		return;
 	}
 	/*
