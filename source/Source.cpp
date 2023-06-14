@@ -93,6 +93,7 @@ bool UCreateShaderProgram(const char* vtxShaderSource, const char* fragShaderSou
 void UDestroyShaderProgram(GLuint programId);
 bool bindTex(const char* texFilename, GLuint& texToBind);
 void createObjects(objectHandler &items);
+void createTestObjects(objectHandler& items);
 
 
 /* Vertex Shader Source Code*/
@@ -204,6 +205,7 @@ int main(int argc, char* argv[])
 	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
 	objectHandler items;
 	createObjects(items);
+	createTestObjects(items);
 
 	// render loop
 	// -----------
@@ -411,408 +413,10 @@ void URender(objectHandler &items)
 	glUniform2fv(UVScaleLoc, 1, glm::value_ptr(gUVScale));
 
 	items.renderAll();
-	// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gPlaneMesh.vao);
-
-	// bind textures on corresponding texture units
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, planeTex);
-
-	// 1. Scales the object
-	//scale = glm::scale(glm::vec3(6.0f, 1.0f, 6.0f));
-	// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-	// 3. Position the object
-	//translation = glm::translate(glm::vec3(0.0f, 1.0f, 1.5f));
-	// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-
-	// Draws the triangles
-	//glDrawElements(GL_TRIANGLES, meshes.gPlaneMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
-
-	// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	//glBindTexture(GL_TEXTURE_2D, 0);
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gBoxMesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(-3.5f, 1.0f, -3.0f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.5f, 0.5f, 0.0f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawElements(GL_TRIANGLES, meshes.gBoxMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gPyramid3Mesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(-2.0f, 1.0f, -3.0f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.5f, 0.5f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, meshes.gPyramid3Mesh.nVertices);
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gPyramid4Mesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(0.0f, 1.0f, -3.0f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.5f, 0.0f, 0.5f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, meshes.gPyramid4Mesh.nVertices);
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gPrismMesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(2.0f, 1.0f, -3.0f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.0f, 0.5f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, meshes.gPrismMesh.nVertices);
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gConeMesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(4.0f, 0.5f, -3.0f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	//glDrawArrays(GL_TRIANGLE_STRIP, 36, 108);	//sides
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	// Activate the VBOs contained within the mesh's VAO
-	/*glBindVertexArray(meshes.gCylinderMesh.vao);
-
-	// 1. Scales the object
-	scale = glm::scale(glm::vec3(1.0f, 0.05f, 0.9f));
-	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	// 3. Position the object
-	translation = glm::translate(glm::vec3(0.0f, 2.0f, 5.5f));
-	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.8f, 1.0f, 0.9f, 1.0f);
-
-	// bind textures on corresponding texture units
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, waxTex);
-
-	// Draws the triangles
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
-	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
-
-	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);*/
-
-	// Activate the VBOs contained within the mesh's VAO
-	/*glBindVertexArray(meshes.gCylinderMesh.vao);
-
-	// 1. Scales the object
-	scale = glm::scale(glm::vec3(0.05f, 0.3f, 0.1f));
-	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	// 3. Position the object
-	translation = glm::translate(glm::vec3(-0.5f, 1.9f, 5.2f));
-	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.6f, 0.0f, 1.0f);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, wickTex);
-
-	// Draws the triangles
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
-	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
-
-	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
-
-	// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gCylinderMesh.vao);
-
-	// 1. Scales the object
-	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
-	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	// 3. Position the object
-	translation = glm::translate(glm::vec3(0.0f, 1.0f, 5.5f));
-	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	glProgramUniform4f(gProgramId, objectColorLoc, 0.8f, 1.0f, 0.9f, 1.0f);
-
-	// bind textures on corresponding texture units
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, glassTex);
-
-	// Draws the triangles
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
-	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
-
-	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
-
-	// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gCylinderMesh.vao);
-
-	// 1. Scales the object
-	scale = glm::scale(glm::vec3(0.05f, 0.3f, 0.1f));
-	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	// 3. Position the object
-	translation = glm::translate(glm::vec3(-0.5f, 1.9f, 5.2f));
-	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.6f, 0.0f, 1.0f);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, wickTex);
-
-	// Draws the triangles
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
-	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
-
-	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
-
-	// Activate the VBOs contained within the mesh's VAO
-	glBindVertexArray(meshes.gCylinderMesh.vao);
-
-	// 1. Scales the object
-	scale = glm::scale(glm::vec3(0.05f, 0.3f, 0.1f));
-	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	// 3. Position the object
-	translation = glm::translate(glm::vec3(0.5f, 1.9f, 5.7f));
-	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.6f, 0.0f, 1.0f);
-
-	// Draws the triangles
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
-	glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
-
-	// Deactivate the Vertex Array Object
-	glBindVertexArray(0); */
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gTaperedCylinderMesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(-1.2f, 1.0f, 5.5f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
-	//glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
-	//glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
-
-	//// Activate the VBOs contained within the mesh's VAO
-	/*glBindVertexArray(meshes.gTorusMesh.vao);
-
-	// 1. Scales the object
-	scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	// 2. Rotate the object
-	rotation = glm::rotate(180.0f, glm::vec3(0.8f, 1.0f, 1.0f));
-	// 3. Position the object
-	translation = glm::translate(glm::vec3(0.0f, 2.0f, 5.5f));
-	// Model matrix: transformations are applied right-to-left order
-	model = translation * rotation * scale;
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, glassTex);
-
-	glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
-
-	// Draws the triangles
-	glDrawArrays(GL_TRIANGLES, 0, meshes.gTorusMesh.nVertices);
-
-	// Deactivate the Vertex Array Object
-	glBindVertexArray(0);
-	*/
-
-	//// Activate the VBOs contained within the mesh's VAO
-	//glBindVertexArray(meshes.gSphereMesh.vao);
-
-	//// 1. Scales the object
-	//scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-	//// 2. Rotate the object
-	//rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
-	//// 3. Position the object
-	//translation = glm::translate(glm::vec3(4.0f, 1.0f, 4.3f));
-	//// Model matrix: transformations are applied right-to-left order
-	//model = translation * rotation * scale;
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-	//glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-
-	//// Draws the triangles
-	//glDrawElements(GL_TRIANGLES, meshes.gSphereMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
-
-	//// Deactivate the Vertex Array Object
-	//glBindVertexArray(0);
 
 	// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 	glfwSwapBuffers(gWindow);    // Flips the the back buffer with the front buffer every frame.
 }
-
-
-// Implements the UCreateMesh function
-/*void UCreateMesh(GLMesh &mesh)
-{
-	// Position and Color data
-	GLfloat verts[] = {
-		// Vertex Positions    // Colors (r,g,b,a)
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f, // Top Right Vertex 0
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f, // Bottom Right Vertex 1
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f, // Bottom Left Vertex 2
-		-0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f, 1.0f, // Top Left Vertex 3
-
-		 0.5f, -0.5f, -1.0f,  0.5f, 0.5f, 1.0f, 1.0f, // 4 br  right
-		 0.5f,  0.5f, -1.0f,  1.0f, 1.0f, 0.5f, 1.0f, //  5 tl  right
-		-0.5f,  0.5f, -1.0f,  0.2f, 0.2f, 0.5f, 1.0f, //  6 tl  top
-		-0.5f, -0.5f, -1.0f,  1.0f, 0.0f, 1.0f, 1.0f  //  7 bl back
-	};
-
-	// Index data to share position data
-	GLushort indices[] = {
-		0, 1, 3,  // Triangle 1
-		1, 2, 3,   // Triangle 2
-		0, 1, 4,  // Triangle 3
-		0, 4, 5,  // Triangle 4
-		0, 5, 6, // Triangle 5
-		0, 3, 6,  // Triangle 6
-		4, 5, 6, // Triangle 7
-		4, 6, 7, // Triangle 8
-		2, 3, 6, // Triangle 9
-		2, 6, 7, // Triangle 10
-		1, 4, 7, // Triangle 11
-		1, 2, 7 // Triangle 12
-	};
-
-	const GLuint floatsPerVertex = 3;
-	const GLuint floatsPerColor = 4;
-
-	glGenVertexArrays(1, &mesh.vao); // we can also generate multiple VAOs or buffers at the same time
-	glBindVertexArray(mesh.vao);
-
-	// Create 2 buffers: first one for the vertex data; second one for the indices
-	glGenBuffers(2, mesh.vbos);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]); // Activates the buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW); // Sends vertex or coordinate data to the GPU
-
-	mesh.nIndices = sizeof(indices) / sizeof(indices[0]);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.vbos[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// Strides between vertex coordinates is 6 (x, y, z, r, g, b, a). A tightly packed stride is 0.
-	GLint stride = sizeof(float) * (floatsPerVertex + floatsPerColor);// The number of floats before each
-
-	// Create Vertex Attribute Pointers
-	glVertexAttribPointer(0, floatsPerVertex, GL_FLOAT, GL_FALSE, stride, 0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, floatsPerColor, GL_FLOAT, GL_FALSE, stride, (char*)(sizeof(float) * floatsPerVertex));
-	glEnableVertexAttribArray(1);
-}*/
-
-
-//void UDestroyMesh(GLMesh &mesh)
-//{
-//	glDeleteVertexArrays(1, &mesh.vao);
-//	glDeleteBuffers(2, mesh.vbos);
-//}
 
 
 // Implements the UCreateShaders function
@@ -1042,11 +646,85 @@ void createObjects(objectHandler &items) {
 	// 1. Scales the object
 	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
 	// 2. Rotate the object
-	rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 	// 3. Position the object
 	translation = glm::translate(glm::vec3(0.0f, 1.0f, 5.5f));
 	// Model matrix: transformations are applied right-to-left order
 	model = translation * rotation * scale;
 	items.addObject(model, glassTex, "cylinder", gProgramId);
 
+
+}
+
+void createTestObjects(objectHandler& items) {
+
+	// 1. Scales the object
+	glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	// 3. Position the object
+	glm::mat4 translation = glm::translate(glm::vec3(5.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	glm::mat4 model = translation * rotation * scale;
+	items.addObject(model, glassTex, "Sphere", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(3.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "TaperedCylinder", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(2.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "cone", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(7.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "Prism", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(9.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "pyramid", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(-1.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "pyramid3", gProgramId);
+
+	// 1. Scales the object
+	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	// 3. Position the object
+	translation = glm::translate(glm::vec3(-3.0f, 5.0f, 5.5f));
+	// Model matrix: transformations are applied right-to-left order
+	model = translation * rotation * scale;
+	items.addObject(model, glassTex, "box", gProgramId);
 }

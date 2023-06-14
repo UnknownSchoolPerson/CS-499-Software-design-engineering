@@ -11,11 +11,24 @@
 #include "meshes.h"
 class objectHandler
 {
+    enum meshShape
+    {
+        plane,
+        torus,
+        cylinder,
+        Sphere,
+        TaperedCylinder,
+        Cone,
+        Prism,
+        Pyramid,
+        Pyramid3,
+        Box
+    };
     struct renderObject
     {
         const unsigned int uniqueID;
         glm::mat4 location;
-        int mesh;
+        meshShape mesh;
         GLuint texture;
         GLuint gProgramId;
         GLuint modelLoc;
@@ -28,6 +41,13 @@ class objectHandler
     void renderPlane(renderObject item);
     void renderTorus(renderObject item);
     void renderCylinder(renderObject item);
+    void renderSphere(renderObject item);
+    void renderTaperedCylinder(renderObject item);
+    void renderCone(renderObject item);
+    void renderPrism(renderObject item);
+    void renderPyramid(renderObject item);
+    void renderPyramid3(renderObject item);
+    void renderBox(renderObject item);
 public:
     std::vector<renderObject> getObjectList(){ return objectList; }
     unsigned int addObject(glm::mat4 location, GLuint texture, std::string objectType, GLuint gProgramId);

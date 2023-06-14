@@ -77,16 +77,157 @@ void objectHandler::renderCylinder(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
+void objectHandler::renderSphere(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gSphereMesh.vao);
+
+    // Model matrix: transformations are applied right-to-left order
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+
+     // bind textures on corresponding texture units
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, item.texture);
+
+    // Draws the triangles
+    glDrawElements(GL_TRIANGLES, meshes.gSphereMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
+
+    // Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
+void objectHandler::renderTaperedCylinder(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gTaperedCylinderMesh.vao);
+
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
+
+    // Draws the triangles
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
+    glDrawArrays(GL_TRIANGLE_FAN, 36, 36);		//top
+    glDrawArrays(GL_TRIANGLE_STRIP, 72, 146);	//sides
+
+    //// Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
+void objectHandler::renderCone(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gConeMesh.vao);
+
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
+
+    // Draws the triangles
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 36);		//bottom
+    glDrawArrays(GL_TRIANGLE_STRIP, 36, 108);	//sides
+
+    // Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
+void objectHandler::renderPrism(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gPrismMesh.vao);
+
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.0f, 0.5f, 1.0f);
+
+    // Draws the triangles
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, meshes.gPrismMesh.nVertices);
+
+    // Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
+void objectHandler::renderPyramid(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gPyramid4Mesh.vao);
+    //// Model matrix: transformations are applied right-to-left order
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(gProgramId, objectColorLoc, 0.5f, 0.0f, 0.5f, 1.0f);
+
+    // Draws the triangles
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, meshes.gPyramid4Mesh.nVertices);
+
+    // Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
+void objectHandler::renderPyramid3(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gPyramid3Mesh.vao);
+
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.5f, 0.5f, 1.0f);
+
+    // Draws the triangles
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, meshes.gPyramid3Mesh.nVertices);
+
+    // Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
+void objectHandler::renderBox(objectHandler::renderObject item) {
+    // Activate the VBOs contained within the mesh's VAO
+    glBindVertexArray(meshes.gBoxMesh.vao);
+    GLint objectColorLoc = glGetUniformLocation(item.gProgramId, "objectColor");
+    glm::mat4 model = item.location;
+    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    //glProgramUniform4f(item.gProgramId, objectColorLoc, 0.5f, 0.5f, 0.0f, 1.0f);
+    // bind textures on corresponding texture units
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, item.texture);
+
+    // Draws the triangles
+    glDrawElements(GL_TRIANGLES, meshes.gBoxMesh.nIndices, GL_UNSIGNED_INT, (void*)0);
+
+    //// Deactivate the Vertex Array Object
+    glBindVertexArray(0);
+}
+
 unsigned int objectHandler::addObject(glm::mat4 location, GLuint texture, string objectType, GLuint gProgramId) {
     renderObject item(freeID++);
     item.location = location;
     item.texture = texture;
+    for (int i = 0; i < objectType.length(); i++)
+        objectType[i] = tolower(objectType[i]);
     if (objectType == "plane")
-        item.mesh = 0;
+        item.mesh = plane;
     else if (objectType == "torus")
-        item.mesh = 1;
+        item.mesh = torus;
     else if (objectType == "cylinder")
-        item.mesh = 2;
+        item.mesh = cylinder;
+    else if (objectType == "sphere")
+        item.mesh = Sphere;
+    else if (objectType == "taperedcylinder")
+        item.mesh = TaperedCylinder;
+    else if (objectType == "cone")
+        item.mesh = Cone;
+    else if (objectType == "prism")
+        item.mesh = Prism;
+    else if (objectType == "pyramid")
+        item.mesh = Pyramid;
+    else if (objectType == "pyramid3")
+        item.mesh = Pyramid3;
+    else if (objectType == "box")
+        item.mesh = Box;
+    else
+        throw invalid_argument("Invalid objectType");
     item.modelLoc = glGetUniformLocation(gProgramId, "model");
     //item.viewLoc = glGetUniformLocation(gProgramId, "view");
     //item.projLoc = glGetUniformLocation(gProgramId, "projection");
@@ -99,14 +240,35 @@ void objectHandler::renderAll() {
     for (auto& item : objectList) {
         switch (item.mesh)
         {
-            case 0:
+            case plane:
                 renderPlane(item);
                 break;
-            case 1:
+            case torus:
                 renderTorus(item);
                 break;
-            case 2:
+            case cylinder:
                 renderCylinder(item);
+                break;
+            case Sphere:
+                renderSphere(item);
+                break;
+            case TaperedCylinder:
+                renderTaperedCylinder(item);
+                break;
+            case Cone:
+                renderCone(item);
+                break;
+            case Prism:
+                renderPrism(item);
+                break;
+            case Pyramid:
+                renderPyramid(item);
+                break;
+            case Pyramid3:
+                renderPyramid3(item);
+                break;
+            case Box:
+                renderBox(item);
                 break;
             default:
                 break;
