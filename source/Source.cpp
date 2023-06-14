@@ -69,6 +69,19 @@ namespace
 	float gDeltaTime = 0.0f; // time between current frame and last frame
 	float gLastFrame = 0.0f;
 
+	// Cube and light color
+	//m::vec3 gObjectColor(0.6f, 0.5f, 0.75f);
+	//glm::vec3 gObjectColor(1.f, 0.2f, 0.0f);
+	glm::vec3 gLightColor(1.0f, 1.0f, 1.0f);
+	glm::vec3 gSecondLightColor(0.0f, 0.6f, 0.0f);
+	//GLfloat specularIntensity = 0.8f;
+	//GLfloat highlightSize = 16.0f;
+
+	// Light position and scale
+	glm::vec3 gSecondLightPosition(-1.0f, 0.5f, 3.0f);
+	glm::vec3 gLightPosition(-2.0f, 4.5f, -5.0f);
+	glm::vec3 gLightScale(0.3f);
+
 	//Shape Meshes from Professor Brian
 	//Meshes meshes;
 }
@@ -97,80 +110,107 @@ void createTestObjects(objectHandler& items);
 
 
 /* Vertex Shader Source Code*/
-const GLchar * vertexShaderSource = GLSL(440,
-	layout(location = 0) in vec3 position; // Vertex data from Vertex Attrib Pointer 0
-layout(location = 1) in vec3 normal; // VAP position 1 for normals
-layout(location = 2) in vec2 textureCoordinate;
+/* Vertex Shader Source Code*/
+const GLchar* vertexShaderSource = GLSL(440,
+    layout(location = 0) in vec3 position; // Vertex data from Vertex Attrib Pointer 0
+    layout(location = 1) in vec3 normal;  // Color data from Vertex Attrib Pointer 1
+    layout(location = 2) in vec2 textureCoordinate;
 
-out vec3 vertexNormal; // For outgoing normals to fragment shader
-out vec3 vertexFragmentPos; // For outgoing color / pixels to fragment shader
-out vec2 vertexTextureCoordinate;
+    //out vec4 vertexColor; // variable to transfer color data to the fragment shader
+    out vec3 vertexNormal; // For outgoing normals to fragment shader
+    out vec3 vertexFragmentPos; // For outgoing color / pixels to fragment shader
+    out vec2 vertexTextureCoordinate;
 
-//Global variables for the  transform matrices
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+    //Global variables for the  transform matrices
+    uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
 
-void main()
-{
-	gl_Position = projection * view * model * vec4(position, 1.0f); // Transforms vertices into clip coordinates
+    void main()
+    {
+        gl_Position = projection * view * model * vec4(position, 1.0f); // Transforms vertices into clip coordinates
 
-	vertexFragmentPos = vec3(model * vec4(position, 1.0f)); // Gets fragment / pixel position in world space only (exclude view and projection)
+        vertexFragmentPos = vec3(model * vec4(position, 1.0f)); // Gets fragment / pixel position in world space only (exclude view and projection)
 
-	vertexNormal = mat3(transpose(inverse(model))) * normal; // get normal vectors in world space only and exclude normal translation properties
-	vertexTextureCoordinate = textureCoordinate;
-}
+        vertexNormal = mat3(transpose(inverse(model))) * normal; // get normal vectors in world space only and exclude normal translation properties
+        vertexTextureCoordinate = textureCoordinate;
+    }
 );
 
 
 /* Fragment Shader Source Code*/
-const GLchar * fragmentShaderSource = GLSL(440,
+const GLchar* fragmentShaderSource = GLSL(440,
+    //in vec4 vertexColor; // Variable to hold incoming color data from vertex shader
+    in vec3 vertexNormal; // For incoming normals
+    in vec3 vertexFragmentPos; // For incoming fragment position
+    in vec2 vertexTextureCoordinate;
 
-	in vec3 vertexNormal; // For incoming normals
-in vec3 vertexFragmentPos; // For incoming fragment position
-in vec2 vertexTextureCoordinate;
+    out vec4 fragmentColor;
 
-out vec4 fragmentColor; // For outgoing cube color to the GPU
+    // Uniform / Global variables for object color, light color, light position, and camera/view position
+    uniform vec4 objectColor;
+    uniform vec3 ambientColor;
+    uniform vec3 light1Color;
+    uniform vec3 light1Position;
+    uniform vec3 light2Color;
+    uniform vec3 light2Position;
+    uniform vec3 viewPosition;
+    uniform sampler2D uTexture; // Useful when working with multiple textures
+    uniform vec2 uvScale;
+    uniform bool ubHasTexture;
+    uniform float ambientStrength = 0.1f; // Set ambient or global lighting strength
+    uniform float specularIntensity1 = 0.1f;
+    uniform float highlightSize1 = 16.0f;
+    uniform float specularIntensity2 = 1.0f;
+    uniform float highlightSize2 = 16.0f;
 
-// Uniform / Global variables for object color, light color, light position, and camera/view position
-uniform vec3 objectColor;
-uniform vec3 lightColor;
-uniform vec3 lightPos;
-uniform vec3 viewPosition;
-uniform sampler2D uTexture; // Useful when working with multiple textures
-uniform vec2 uvScale;
+    void main()
+    {
+        /*Phong lighting model calculations to generate ambient, diffuse, and specular components*/
 
-void main()
-{
-	/*Phong lighting model calculations to generate ambient, diffuse, and specular components*/
+        //Calculate Ambient lighting
+        vec3 ambient = ambientStrength * ambientColor; // Generate ambient light color
 
-	//Calculate Ambient lighting*/
-	float ambientStrength = 0.1f; // Set ambient or global lighting strength
-	vec3 ambient = ambientStrength * lightColor; // Generate ambient light color
+        //**Calculate Diffuse lighting**
+        vec3 norm = normalize(vertexNormal); // Normalize vectors to 1 unit
+        vec3 light1Direction = normalize(light1Position - vertexFragmentPos); // Calculate distance (light direction) between light source and fragments/pixels on cube
+        float impact1 = max(dot(norm, light1Direction), 0.0);// Calculate diffuse impact by generating dot product of normal and light
+        vec3 diffuse1 = impact1 * light1Color; // Generate diffuse light color
+        vec3 light2Direction = normalize(light2Position - vertexFragmentPos); // Calculate distance (light direction) between light source and fragments/pixels on cube
+        float impact2 = max(dot(norm, light2Direction), 0.0);// Calculate diffuse impact by generating dot product of normal and light
+        vec3 diffuse2 = impact2 * light2Color; // Generate diffuse light color
 
-	//Calculate Diffuse lighting*/
-	vec3 norm = normalize(vertexNormal); // Normalize vectors to 1 unit
-	vec3 lightDirection = normalize(lightPos - vertexFragmentPos); // Calculate distance (light direction) between light source and fragments/pixels on cube
-	float impact = max(dot(norm, lightDirection), 0.0);// Calculate diffuse impact by generating dot product of normal and light
-	vec3 diffuse = impact * lightColor; // Generate diffuse light color
+        //**Calculate Specular lighting**
+        vec3 viewDir = normalize(viewPosition - vertexFragmentPos); // Calculate view direction
+        vec3 reflectDir1 = reflect(-light1Direction, norm);// Calculate reflection vector
+        //Calculate specular component
+        float specularComponent1 = pow(max(dot(viewDir, reflectDir1), 0.0), highlightSize1);
+        vec3 specular1 = specularIntensity1 * specularComponent1 * light1Color;
+        vec3 reflectDir2 = reflect(-light2Direction, norm);// Calculate reflection vector
+        //Calculate specular component
+        float specularComponent2 = pow(max(dot(viewDir, reflectDir2), 0.0), highlightSize2);
+        vec3 specular2 = specularIntensity2 * specularComponent2 * light2Color;
 
-	//Calculate Specular lighting*/
-	float specularIntensity = 1.0f; // Set specular light strength
-	float highlightSize = 10.0f; // Set specular highlight size
-	vec3 viewDir = normalize(viewPosition - vertexFragmentPos); // Calculate view direction
-	vec3 reflectDir = reflect(-lightDirection, norm);// Calculate reflection vector
-	//Calculate specular component
-	float specularComponent = pow(max(dot(viewDir, reflectDir), 0.0), highlightSize);
-	vec3 specular = specularIntensity * specularComponent * lightColor;
+        //**Calculate phong result**
+        //Texture holds the color to be used for all three components
+        vec4 textureColor = texture(uTexture, vertexTextureCoordinate * uvScale);
+        vec3 phong1;
+        vec3 phong2;
 
-	// Texture holds the color to be used for all three components
-	vec4 textureColor = texture(uTexture, vertexTextureCoordinate * uvScale);
+        if (ubHasTexture == true)
+        {
+            phong1 = (ambient + diffuse1 + specular1) * textureColor.xyz;
+            phong2 = (ambient + diffuse2 + specular2) * textureColor.xyz;
+        }
+        else
+        {
+            phong1 = (ambient + diffuse1 + specular1) * objectColor.xyz;
+            phong2 = (ambient + diffuse2 + specular2) * objectColor.xyz;
+        }
 
-	// Calculate phong result
-	vec3 phong = (ambient + diffuse + specular) * textureColor.xyz;
-
-	fragmentColor = vec4(phong, 1.0); // Send lighting results to GPU
-}
+        fragmentColor = vec4(phong1 + phong2, 1.0); // Send lighting results to GPU
+        //fragmentColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    }
 );
 
 
@@ -389,16 +429,26 @@ void URender(objectHandler &items)
 
 	// Reference matrix uniforms from the Cube Shader program for the cub color, light color, light position, and camera position
 	//objectColorLoc = glGetUniformLocation(gProgramId, "objectColor");
-	GLint lightColorLoc = glGetUniformLocation(gProgramId, "lightColor");
-	GLint lightPositionLoc = glGetUniformLocation(gProgramId, "lightPos");
+	GLint ambientColorLoc = glGetUniformLocation(gProgramId, "ambientColor");
+	GLint lightColorLoc = glGetUniformLocation(gProgramId, "light1Color");
+	GLint lightPositionLoc = glGetUniformLocation(gProgramId, "light1Position");
 	GLint viewPositionLoc = glGetUniformLocation(gProgramId, "viewPosition");
+	GLint light2ColorLoc = glGetUniformLocation(gProgramId, "light2Color");
+	GLint light2PositionLoc = glGetUniformLocation(gProgramId, "light2Position");
 
 	// Pass color, light, and camera data to the Cube Shader program's corresponding uniforms
-	//glUniform3f(objectColorLoc, 1.0f, 1.0f, 1.0f);
-	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
-	glUniform3f(lightPositionLoc, 1.0f, 3.0f, 1.0f);
+	//glUniform3f(objectColorLoc, gObjectColor.r, gObjectColor.g, gObjectColor.b);
+	glUniform3f(ambientColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
+	glUniform3f(lightColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
+	glUniform3f(light2ColorLoc, gLightColor.r, gLightColor.g, gLightColor.b);
+	glUniform3f(lightPositionLoc, gSecondLightColor.x, gSecondLightColor.y, gSecondLightColor.z);
+	glUniform3f(light2PositionLoc, gLightPosition.x, gLightPosition.y, gLightPosition.z);
+
 	const glm::vec3 cameraPosition = gCamera.Position;
 	glUniform3f(viewPositionLoc, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+	bool ubHasTextureVal = true;
+	GLint uHasTextureLoc = glGetUniformLocation(gProgramId, "ubHasTexture");
+	glUniform1i(uHasTextureLoc, ubHasTextureVal);
 
 	// Retrieves and passes transform matrices to the Shader program
 	//modelLoc = glGetUniformLocation(gProgramId, "model");
