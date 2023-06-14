@@ -63,7 +63,7 @@ class objectHandler
     void renderPyramid3(renderObject item);
     void renderBox(renderObject item);
 public:
-    std::vector<renderObject> getObjectList(){ return objectList; }
+    std::vector<renderObject>* getObjectList(){ return &objectList; }
     unsigned int addObject(glm::mat4 location, GLuint texture, std::string objectType, GLuint gProgramId);
     void renderAll();
 	objectHandler();

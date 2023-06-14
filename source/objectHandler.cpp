@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "meshes.h"
 #include <string>
+//#include <glm/gtx/string_cast.hpp> // https://gist.github.com/donaldmunro/38841d72c65a1c32f2bf83a4a00a2c9a
 using namespace std;
 objectHandler::objectHandler() {
     freeID = 0;
@@ -240,7 +241,6 @@ void objectHandler::renderAll() {
             default:
                 break;
         }
-        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }

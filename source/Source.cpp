@@ -11,7 +11,10 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glm/gtx/string_cast.hpp> // https://gist.github.com/donaldmunro/38841d72c65a1c32f2bf83a4a00a2c9a
+
 #include <learnOpengl/camera.h> // Camera class
+#include <glm/gtc/type_ptr.hpp>
 
 //#include "meshes.h"
 
@@ -51,10 +54,25 @@ namespace
 	GLuint waxTex;
 	GLuint wickTex;
 	GLuint glassTex;
+	GLuint selectedTex;
 	glm::vec2 gUVScale(1.0f, 1.0f);
 	GLint gTexWrapMode = GL_REPEAT;
 	// Shader program
 	GLuint gProgramId;
+
+	//Object Changer Vars
+	int vecSpot = 0;
+	enum tool {
+		Rotate,
+		Scale,
+		Translation
+	};
+	tool currentTool = Rotate;
+	GLuint prevTex;
+	bool enableSelectedTex = false;
+	float changeBy = 1.0;
+	float stepBy = 1.0;
+	bool editX = false, editY = false, editZ = false;
 
 	// camera
 	Camera gCamera(glm::vec3(0.0f, 3.0f, 10.0f));
@@ -63,7 +81,7 @@ namespace
 	bool gFirstMouse = true;
 	bool gLockCamera = false;
 	float gZoom = 2.0f;
-	bool keyUp = true;
+	bool keyUp[348];
 
 	// timing
 	float gDeltaTime = 0.0f; // time between current frame and last frame
@@ -93,7 +111,7 @@ namespace
  */
 bool UInitialize(int, char*[], GLFWwindow** window);
 void UResizeWindow(GLFWwindow* window, int width, int height);
-void UProcessInput(GLFWwindow* window);
+void UProcessInput(GLFWwindow* window, objectHandler &items);
 void UMousePositionCallback(GLFWwindow* window, double xpos, double ypos);
 void UMouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 //void UMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -107,6 +125,7 @@ void UDestroyShaderProgram(GLuint programId);
 bool bindTex(const char* texFilename, GLuint& texToBind);
 void createObjects(objectHandler &items);
 void createTestObjects(objectHandler& items);
+void objectChanger(objectHandler& items, int key, bool print = false);
 
 
 /* Vertex Shader Source Code*/
@@ -227,6 +246,8 @@ int main(int argc, char* argv[])
 	if (!UCreateShaderProgram(vertexShaderSource, fragmentShaderSource, gProgramId))
 		return EXIT_FAILURE;
 
+	for (auto &key : keyUp)
+		key = true;
 	// Load texture
 	//https://commons.wikimedia.org/wiki/File:Red-brick-wall-texture-clean.jpg
 	if (!bindTex("../../resources/textures/brick-wall.jpg", planeTex))
@@ -240,12 +261,36 @@ int main(int argc, char* argv[])
 	//https://commons.wikimedia.org/wiki/File:Solarsystemscope_texture_2k_uranus.jpg
 	if (!bindTex("../../resources/textures/glass.jpg", glassTex))
 		return EXIT_FAILURE;
+	//https://gmod.fandom.com/wiki/Missing_textures?file=The_Missing_textures.png
+	if (!bindTex("../../resources/textures/untex.png", selectedTex))
+		return EXIT_FAILURE;
 	// Sets the background color of the window to black (it will be implicitely used by glClear)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
 	objectHandler items;
 	createObjects(items);
 	//createTestObjects(items);
+
+	cout << "Controls for object editor." << endl;
+	cout << "1 - Add to current object with selected tool" << endl;
+	cout << "2 - Subtract from current object with selected tool" << endl;
+	cout << "3 - Change to Rotate (Current Tool)" << endl;
+	cout << "4 - Change to Translation" << endl;
+	cout << "5 - Change to Scale" << endl;
+	cout << "6 - Enable/Disable Edit X" << endl;
+	cout << "7 - Enable/Disable Edit Y" << endl;
+	cout << "8 - Enable/Disable Edit Z" << endl;
+	cout << "9 - Decrease Step" << endl;
+	cout << "0 - Increase Step" << endl;
+	cout << "- - Decrease Change by" << endl;
+	cout << "+ - Increase Change by" << endl;
+	cout << "[ - Change Object" << endl;
+	cout << "] - Change Object" << endl;
+	cout << "Z - Enable/Disable Selected Object Texture" << endl;
+	cout << "X - Dump selected object Matrix" << endl;
+
+
+
 
 	// render loop
 	// -----------
@@ -259,7 +304,7 @@ int main(int argc, char* argv[])
 		gLastFrame = currentFrame;
 		// input
 		// -----
-		UProcessInput(gWindow);
+		UProcessInput(gWindow, items);
 
 		// Render this frame
 		URender(items);
@@ -336,7 +381,7 @@ bool UInitialize(int argc, char* argv[], GLFWwindow** window)
 
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void UProcessInput(GLFWwindow* window)
+void UProcessInput(GLFWwindow* window, objectHandler& items)
 {
 	float speed = gDeltaTime * speedOffset;
 
@@ -345,11 +390,75 @@ void UProcessInput(GLFWwindow* window)
 	// My code
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE)
 	{
-		keyUp = 1;
+		keyUp[GLFW_KEY_P] = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && keyUp)
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_RELEASE)
 	{
-		keyUp = false;
+		keyUp[GLFW_KEY_X] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_1] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_2] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_3] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_4] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_5] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_6] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_7] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_8] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_RIGHT_BRACKET] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_LEFT_BRACKET] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_Z] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_MINUS] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_EQUAL] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_9] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_0] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && keyUp[GLFW_KEY_P])
+	{
+		keyUp[GLFW_KEY_P] = false;
 		if (!gLockCamera)
 		{
 			gLockCamera = true;
@@ -379,6 +488,199 @@ void UProcessInput(GLFWwindow* window)
 		gCamera.ProcessKeyboard(UP, speed);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		gCamera.ProcessKeyboard(DOWN, speed);
+
+	if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && keyUp[GLFW_KEY_MINUS])
+	{
+		keyUp[GLFW_KEY_MINUS] = false;
+		changeBy -= stepBy;
+		if (changeBy < 0.0f)
+			changeBy = stepBy;
+		cout << "Current Change is " << changeBy << endl;
+	}
+	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS && keyUp[GLFW_KEY_EQUAL])
+	{
+		keyUp[GLFW_KEY_EQUAL] = false;
+		changeBy += stepBy;
+		if (changeBy > 10.0f)
+			changeBy = 10.0f;
+		cout << "Current Change is " << changeBy << endl;
+	}
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS && keyUp[GLFW_KEY_9])
+	{
+		keyUp[GLFW_KEY_9] = false;
+		stepBy *= 0.1f;
+		if (stepBy < 0.0001f)
+			stepBy = 0.0001f;
+		cout << "Current Step is " << stepBy << endl;
+	}
+	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS && keyUp[GLFW_KEY_0])
+	{
+		keyUp[GLFW_KEY_0] = false;
+		stepBy *= 10.0f;
+		if (stepBy > 10.0f)
+			stepBy = 10.0f;
+		cout << "Current Step is " << stepBy << endl;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS && keyUp[GLFW_KEY_Z])
+	{
+		keyUp[GLFW_KEY_Z] = false;
+		if (enableSelectedTex) {
+			cout << "Selected Texture Off" << endl;
+			enableSelectedTex = false;
+			items.getObjectList()->at(vecSpot).texture = prevTex;
+		}
+		else {
+			cout << "Selected Texture On" << endl;
+			enableSelectedTex = true;
+			items.getObjectList()->at(vecSpot).texture = selectedTex;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS && keyUp[GLFW_KEY_LEFT_BRACKET])
+	{
+		keyUp[GLFW_KEY_LEFT_BRACKET] = false;
+		if (enableSelectedTex)
+			items.getObjectList()->at(vecSpot).texture = prevTex;
+		vecSpot--;
+		if (vecSpot < 0)
+			vecSpot = items.getObjectList()->size() - 1;
+		if (enableSelectedTex) {
+			prevTex = items.getObjectList()->at(vecSpot).texture;
+			items.getObjectList()->at(vecSpot).texture = selectedTex;
+		}
+		cout << "Current Object is " << vecSpot << endl;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET) == GLFW_PRESS && keyUp[GLFW_KEY_RIGHT_BRACKET])
+	{
+		keyUp[GLFW_KEY_RIGHT_BRACKET] = false;
+		if (enableSelectedTex)
+			items.getObjectList()->at(vecSpot).texture = prevTex;
+		vecSpot++;
+		if (vecSpot == items.getObjectList()->size())
+			vecSpot = 0;
+		if (enableSelectedTex) {
+			prevTex = items.getObjectList()->at(vecSpot).texture;
+			items.getObjectList()->at(vecSpot).texture = selectedTex;
+		}
+		cout << "Current Object is " << vecSpot << endl;
+	}
+	//https://gist.github.com/donaldmunro/38841d72c65a1c32f2bf83a4a00a2c9a
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && keyUp[GLFW_KEY_X])
+	{
+		keyUp[GLFW_KEY_X] = false;
+		objectChanger(items, GLFW_KEY_X, true);
+	}
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && keyUp[GLFW_KEY_1])
+	{
+		keyUp[GLFW_KEY_1] = false;
+		objectChanger(items, GLFW_KEY_1);
+	}
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && keyUp[GLFW_KEY_2])
+	{
+		keyUp[GLFW_KEY_2] = false;
+		objectChanger(items, GLFW_KEY_2);
+	}
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS && keyUp[GLFW_KEY_3])
+	{
+		keyUp[GLFW_KEY_3] = false;
+		cout << "Current tool is Rotate" << endl;
+		currentTool = Rotate;
+	}
+	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS && keyUp[GLFW_KEY_4])
+	{
+		keyUp[GLFW_KEY_4] = false;
+		cout << "Current tool is Translation" << endl;
+		currentTool = Translation;
+	}
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS && keyUp[GLFW_KEY_5])
+	{
+		keyUp[GLFW_KEY_5] = false;
+		cout << "Current tool is Scale" << endl;
+		currentTool = Scale;
+	}
+	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS && keyUp[GLFW_KEY_6])
+	{
+		keyUp[GLFW_KEY_6] = false;
+		if (editX) {
+			cout << "X won't be changed." << endl;
+			editX = false;
+		}
+		else {
+			cout << "X will be changed." << endl;
+			editX = true;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS && keyUp[GLFW_KEY_7])
+	{
+		keyUp[GLFW_KEY_6] = false;
+		if (editX) {
+			cout << "Y won't be changed." << endl;
+			editY = false;
+		}
+		else {
+			cout << "Y will be changed." << endl;
+			editY = true;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS && keyUp[GLFW_KEY_8])
+	{
+		keyUp[GLFW_KEY_6] = false;
+		if (editZ) {
+			cout << "Z won't be changed." << endl;
+			editZ = false;
+		}
+		else {
+			cout << "Z will be changed." << endl;
+			editZ = true;
+		}
+	}
+}
+
+void objectChanger(objectHandler& items, int key, bool print) {
+	auto* vec = items.getObjectList();
+	if (print) {
+		std::cout << glm::to_string(vec->at(vecSpot).location) << std::endl;
+		return;
+	}
+	/*
+	glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
+	// 2. Rotate the object
+	glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0, 1.0f, 1.0f));
+	// 3. Position the object
+	glm::mat4 translation = glm::translate(glm::vec3(5.0f, 5.0f, 5.5f));
+	*/
+	float x = 0.0, y = 0.0, z = 0.0;
+	if (editX)
+		x = changeBy;
+	if (editY)
+		y = changeBy;
+	if (editZ)
+		z = changeBy;
+	// If nothing is being changed, pass
+	if (x + y + z == 0)
+		return;
+	switch (currentTool) {
+		case Rotate:
+			if (key == GLFW_KEY_1)
+				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location, changeBy, glm::vec3(editX, editY, editZ));
+			else
+				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location , -changeBy, glm::vec3(editX, editY, editZ));
+			return;
+		case Translation:
+			if (key == GLFW_KEY_1)
+				vec->at(vecSpot).location = glm::translate(vec->at(vecSpot).location, glm::vec3(x, y, z));
+			else
+				vec->at(vecSpot).location = glm::translate(vec->at(vecSpot).location, glm::vec3(-x, -y, -z));
+			return;
+		case Scale:
+			if (key == GLFW_KEY_1)
+				vec->at(vecSpot).location = glm::scale(vec->at(vecSpot).location, glm::vec3(x, y, z));
+			else
+				vec->at(vecSpot).location = glm::scale(vec->at(vecSpot).location, glm::vec3(1.0f / x, 1.0f / y, 1.0f / z));
+			return;
+		default:
+			return;
+	}
+
 }
 
 
@@ -703,7 +1005,14 @@ void createObjects(objectHandler &items) {
 	model = translation * rotation * scale;
 	items.addObject(model, glassTex, "cylinder", gProgramId);
 
+	//https://stackoverflow.com/questions/7351659/how-to-initialize-a-glmmat4-with-an-array
+	//float location[16] = { 6.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 1.000000f, 0.00000f, 0.000000f, 0.000000f, 0.000000f, 6.000000f, 0.000000f, 0.000000f, -4.736830f, 1.500000f, 1.000000f };
+	//model = glm::make_mat4(location);
+	//items.addObject(model, glassTex, "cylinder", gProgramId);
 
+
+
+	prevTex = items.getObjectList()->at(0).texture;
 }
 
 void createTestObjects(objectHandler& items) {
