@@ -55,6 +55,7 @@ namespace
 	GLuint wickTex;
 	GLuint glassTex;
 	GLuint selectedTex;
+	GLuint blackTex;
 	glm::vec2 gUVScale(1.0f, 1.0f);
 	GLint gTexWrapMode = GL_REPEAT;
 	// Shader program
@@ -264,6 +265,9 @@ int main(int argc, char* argv[])
 	//https://gmod.fandom.com/wiki/Missing_textures?file=The_Missing_textures.png
 	if (!bindTex("../../resources/textures/untex.png", selectedTex))
 		return EXIT_FAILURE;
+	//Me
+	if (!bindTex("../../resources/textures/black.png", blackTex))
+		return EXIT_FAILURE;
 	// Sets the background color of the window to black (it will be implicitely used by glClear)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
@@ -277,6 +281,8 @@ int main(int argc, char* argv[])
 	cout << "3 - Change to Rotate (Current Tool)" << endl;
 	cout << "4 - Change to Translation" << endl;
 	cout << "5 - Change to Scale" << endl;
+	cout << "Note - Scaling is multiplied with Change by" << endl;
+	cout << "or when shrinking (1 / Change by)" << endl;
 	cout << "6 - Enable/Disable Edit X" << endl;
 	cout << "7 - Enable/Disable Edit Y" << endl;
 	cout << "8 - Enable/Disable Edit Z" << endl;
@@ -505,7 +511,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		keyUp[GLFW_KEY_MINUS] = false;
 		changeBy -= stepBy;
 		if (changeBy < 0.0f)
-			changeBy = stepBy;
+			changeBy = 0.0f;
 		cout << "Current Change is " << changeBy << endl;
 	}
 	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS && keyUp[GLFW_KEY_EQUAL])
@@ -690,11 +696,20 @@ void objectChanger(objectHandler& items, int key) {
 	*/
 	float x = 0.0, y = 0.0, z = 0.0;
 	if (editX)
+	{
 		x = changeBy;
+		cout << "X Changed" << endl;
+	}
 	if (editY)
+	{
 		y = changeBy;
+		cout << "Y Changed" << endl;
+	}
 	if (editZ)
+	{
 		z = changeBy;
+		cout << "Z Changed" << endl;
+	}
 	// If nothing is being changed, pass
 	if (x + y + z == 0)
 		return;
@@ -712,6 +727,12 @@ void objectChanger(objectHandler& items, int key) {
 				vec->at(vecSpot).location = glm::translate(vec->at(vecSpot).location, glm::vec3(-x, -y, -z));
 			return;
 		case Scale:
+			if (x < 1.0)
+				x = 1.0;
+			if (y < 1.0)
+				y = 1.0;
+			if (z < 1.0)
+				z = 1.0;
 			if (key == GLFW_KEY_1)
 				vec->at(vecSpot).location = glm::scale(vec->at(vecSpot).location, glm::vec3(x, y, z));
 			else
@@ -1046,9 +1067,9 @@ void createObjects(objectHandler &items) {
 	items.addObject(model, glassTex, "cylinder", gProgramId);
 
 	//https://stackoverflow.com/questions/7351659/how-to-initialize-a-glmmat4-with-an-array
-	//float location[16] = { 6.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 1.000000f, 0.00000f, 0.000000f, 0.000000f, 0.000000f, 6.000000f, 0.000000f, 0.000000f, -4.736830f, 1.500000f, 1.000000f };
-	//model = glm::make_mat4(location);
-	//items.addObject(model, glassTex, "cylinder", gProgramId);
+	float location[16] = { 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.250000, -0.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, -1.000001, 1.224999, -2.999997, 1.000000 };
+	model = glm::make_mat4(location);
+	items.addObject(model, blackTex, "box", gProgramId);
 
 
 
@@ -1066,7 +1087,6 @@ void createTestObjects(objectHandler& items) {
 	// Model matrix: transformations are applied right-to-left order
 	glm::mat4 model = translation * rotation * scale;
 	items.addObject(model, glassTex, "Sphere", gProgramId);
-
 	// 1. Scales the object
 	scale = glm::scale(glm::vec3(1.0f, 1.025f, 1.0f));
 	// 2. Rotate the object

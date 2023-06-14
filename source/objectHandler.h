@@ -28,7 +28,11 @@ class objectHandler
     struct renderObject
     {
         const unsigned int uniqueID;
+        glm::mat4 scale;
+        glm::mat4 rotation;
+        glm::mat4 translation;
         glm::mat4 location;
+        void rebuildLocation();
         meshShape mesh;
         GLuint texture;
         GLuint gProgramId;
