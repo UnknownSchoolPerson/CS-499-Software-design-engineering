@@ -55,7 +55,12 @@ namespace
 	GLuint wickTex;
 	GLuint glassTex;
 	GLuint selectedTex;
-	GLuint blackTex;
+	GLuint greyTex;
+	GLuint cyanTex;
+	GLuint woodTex;
+	GLuint jarGlassTex;
+	GLuint plasticTex;
+	GLuint whiteTex;
 	glm::vec2 gUVScale(1.0f, 1.0f);
 	GLint gTexWrapMode = GL_REPEAT;
 	// Shader program
@@ -92,7 +97,7 @@ namespace
 	//m::vec3 gObjectColor(0.6f, 0.5f, 0.75f);
 	//glm::vec3 gObjectColor(1.f, 0.2f, 0.0f);
 	glm::vec3 gLightColor(1.0f, 1.0f, 1.0f);
-	glm::vec3 gSecondLightColor(0.5f, 0.0f, 0.5f);
+	glm::vec3 gSecondLightColor(1.0f, 1.0f, 1.0f);
 	//GLfloat specularIntensity = 0.8f;
 	//GLfloat highlightSize = 16.0f;
 
@@ -266,7 +271,22 @@ int main(int argc, char* argv[])
 	if (!bindTex("../../resources/textures/untex.png", selectedTex))
 		return EXIT_FAILURE;
 	//Me
-	if (!bindTex("../../resources/textures/black.png", blackTex))
+	if (!bindTex("../../resources/textures/grey.png", greyTex))
+		return EXIT_FAILURE;
+	if (!bindTex("../../resources/textures/cyan.png", cyanTex))
+		return EXIT_FAILURE;
+	//https://pxhere.com/en/photo/598879
+	if (!bindTex("../../resources/textures/wood.jpg", woodTex))
+		return EXIT_FAILURE;
+	//https://commons.wikimedia.org/wiki/File:Wallpaper_glass_fiber_texture.jpg
+	if (!bindTex("../../resources/textures/jarglass.jpg", jarGlassTex))
+		return EXIT_FAILURE;
+
+	//https://www.pexels.com/photo/photo-of-a-clear-plastic-taped-on-a-white-surface-4587829/
+	if (!bindTex("../../resources/textures/plastic.jpg", plasticTex))
+		return EXIT_FAILURE;
+	//me
+	if (!bindTex("../../resources/textures/white.png", whiteTex))
 		return EXIT_FAILURE;
 	// Sets the background color of the window to black (it will be implicitely used by glClear)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -684,7 +704,7 @@ void objectChanger(objectHandler& items, int key) {
 		if (num >= 10)
 			num = 0;
 		vec->at(vecSpot).mesh = objectHandler::meshShape(num);
-		cout << "Object shape is now ID " << endl;
+		cout << "Object shape is now " << num << endl;
 		return;
 	}
 	/*
@@ -715,10 +735,23 @@ void objectChanger(objectHandler& items, int key) {
 		return;
 	switch (currentTool) {
 		case Rotate:
+			//https://www.reddit.com/r/opengl/comments/sih6lc/4x4_matrix_to_position_rotation_and_scale/
+			glm::vec3 position = vec->at(vecSpot).location[3]; // 4th column of the model matrix
+			if (!editX)
+				position.x = 0.0;
+			if (!editY)
+				position.y = 0.0;
+			if (!editZ)
+				position.z = 0.0;
+			if (position.x == 0.0 && position.y == 0.0 && position.z == 0.0)
+				return; //This is a bug. Object breaks rotating at a 0 axis.
+			//https://stackoverflow.com/questions/8844585/glm-rotate-usage-in-opengl
 			if (key == GLFW_KEY_1)
-				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location, changeBy, glm::vec3(editX, editY, editZ));
+				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location, glm::radians(changeBy), glm::vec3(position.x, position.y, position.z));
 			else
-				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location , -changeBy, glm::vec3(editX, editY, editZ));
+				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location, glm::radians(-changeBy), glm::vec3(position.x, position.y, position.z));
+			//glm::vec3 position = vec->at(vecSpot).location[3]; // 4th column of the model matrix
+			//cout << position.x << endl;
 			return;
 		case Translation:
 			if (key == GLFW_KEY_1)
@@ -1066,10 +1099,56 @@ void createObjects(objectHandler &items) {
 	model = translation * rotation * scale;
 	items.addObject(model, glassTex, "cylinder", gProgramId);
 
+	//Box
 	//https://stackoverflow.com/questions/7351659/how-to-initialize-a-glmmat4-with-an-array
-	float location[16] = { 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.250000, -0.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, -1.000001, 1.224999, -2.999997, 1.000000 };
+	float *location = new float[16]{ 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.250000, -0.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, -1.000001, 1.224999, -2.999997, 1.000000 };
 	model = glm::make_mat4(location);
-	items.addObject(model, blackTex, "box", gProgramId);
+	items.addObject(model, greyTex, "box", gProgramId);
+	delete[] location;
+
+	location = new float[16] { 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.070436, -0.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, -1.000001, 1.065624, -2.999997, 1.000000 };
+	model = glm::make_mat4(location);
+	items.addObject(model, cyanTex, "box", gProgramId);
+	delete[] location;
+
+	location = new float[16] {1.000000, 0.000060, 0.000493, 0.000000, 0.000000, 0.021927, -0.037829, 0.000000, -0.000524, 0.115491, 0.940911, 0.000000, -1.000000, 1.455441, -3.068074, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, cyanTex, "box", gProgramId);
+	delete[] location;
+
+	location = new float[16] {1.000002, 0.000000, -0.000000, 0.000000, 0.000001, 0.391620, -0.000002, 0.000000, -0.000000, -0.000000, 0.063039, 0.000000, -1.000002, 1.223701, -3.528664, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, cyanTex, "box", gProgramId);
+	delete[] location;
+
+	// Jar
+	location = new float[16] {0.634311, 0.000000, -0.000000, 0.000000, 0.000000, 2.000000, 0.000000, 0.000000, -0.000000, -0.000000, 0.634311, 0.000000, -2.666669, 1.000000, -3.333334, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, jarGlassTex, "cylinder", gProgramId);
+	delete[] location;
+
+	location = new float[16] {0.601270, 0.000000, 0.000000, 0.000000, 0.000000, -0.000000, -0.601270, 0.000000, 0.000000, 0.500000, 0.000000, 0.000000, -2.666669, 3.039999, -3.333334, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, jarGlassTex, "torus", gProgramId);
+	delete[] location;
+
+	location = new float[16] {0.606061, 0.000000, -0.000000, 0.000000, 0.000000, 0.062500, 0.000000, 0.000000, -0.000000, -0.000000, 0.606061, 0.000000, -2.666669, 3.052499, -3.333334, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, woodTex, "cylinder", gProgramId);
+	delete[] location;
+
+
+	//waxbox
+	location = new float[16] {1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.289664, 0.000000, 0.000000, 0.000000, 0.000000, 1.331000, 0.000000, 4.299999, 1.239302, 5.500000, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, plasticTex, "box", gProgramId);
+	delete[] location;
+
+	location = new float[16] {0.564474, 0.000000, 0.000000, 0.000000, 0.000000, 0.289664, 0.000000, 0.000000, 0.000000, 0.000000, 0.909091, 0.000000, 4.299999, 1.239302, 5.318182, 1.000000};
+	model = glm::make_mat4(location);
+	items.addObject(model, whiteTex, "plane", gProgramId);
+	delete[] location;
+
 
 
 
