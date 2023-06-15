@@ -129,7 +129,7 @@ bool UCreateTexture(const char* filename, GLuint& textureId);
 void UDestroyTexture(GLuint textureId);
 bool UCreateShaderProgram(const char* vtxShaderSource, const char* fragShaderSource, GLuint &programId);
 void UDestroyShaderProgram(GLuint programId);
-bool bindTex(const char* texFilename, GLuint& texToBind);
+bool bindTex(string texFilename, GLuint& texToBind);
 void createObjects(objectHandler &items);
 void createTestObjects(objectHandler& items);
 void objectChanger(objectHandler& items, int key);
@@ -256,38 +256,45 @@ int main(int argc, char* argv[])
 	for (auto &key : keyUp)
 		key = true;
 	// Load texture
+	string filestart = "../../resources/";
+	//https://stackoverflow.com/questions/32136185/difference-between-strcpy-and-strcpy-s
+	// declaring character array (+1 for null terminator)
 	//https://commons.wikimedia.org/wiki/File:Red-brick-wall-texture-clean.jpg
-	if (!bindTex("../../resources/textures/brick-wall.jpg", planeTex))
-		return EXIT_FAILURE;
+	if (!bindTex(filestart + "textures/brick-wall.jpg", planeTex))
+	{
+		filestart = "";
+		if (!bindTex(filestart + "textures/brick-wall.jpg", planeTex))
+			return EXIT_FAILURE;
+	}
 	//https://www.freepik.com/premium-photo/soy-wax-flakes-texture-closeup_36977469.htm
-	if (!bindTex("../../resources/textures/wax.jpg", waxTex))
+	if (!bindTex(filestart + "textures/wax.jpg", waxTex))
 		return EXIT_FAILURE;
 	//https://pxhere.com/en/photo/1021832
-	if (!bindTex("../../resources/textures/wick.jpg", wickTex))
+	if (!bindTex(filestart + "textures/wick.jpg", wickTex))
 		return EXIT_FAILURE;
 	//https://commons.wikimedia.org/wiki/File:Solarsystemscope_texture_2k_uranus.jpg
-	if (!bindTex("../../resources/textures/glass.jpg", glassTex))
+	if (!bindTex(filestart + "textures/glass.jpg", glassTex))
 		return EXIT_FAILURE;
 	//https://gmod.fandom.com/wiki/Missing_textures?file=The_Missing_textures.png
-	if (!bindTex("../../resources/textures/untex.png", selectedTex))
+	if (!bindTex(filestart + "textures/untex.png", selectedTex))
 		return EXIT_FAILURE;
 	//Me
-	if (!bindTex("../../resources/textures/grey.png", greyTex))
+	if (!bindTex(filestart + "textures/grey.png", greyTex))
 		return EXIT_FAILURE;
-	if (!bindTex("../../resources/textures/cyan.png", cyanTex))
+	if (!bindTex(filestart + "textures/cyan.png", cyanTex))
 		return EXIT_FAILURE;
 	//https://pxhere.com/en/photo/598879
-	if (!bindTex("../../resources/textures/wood.jpg", woodTex))
+	if (!bindTex(filestart + "textures/wood.jpg", woodTex))
 		return EXIT_FAILURE;
 	//https://commons.wikimedia.org/wiki/File:Wallpaper_glass_fiber_texture.jpg
-	if (!bindTex("../../resources/textures/jarglass.jpg", jarGlassTex))
+	if (!bindTex(filestart + "textures/jarglass.jpg", jarGlassTex))
 		return EXIT_FAILURE;
 
 	//https://www.pexels.com/photo/photo-of-a-clear-plastic-taped-on-a-white-surface-4587829/
-	if (!bindTex("../../resources/textures/plastic.jpg", plasticTex))
+	if (!bindTex(filestart + "textures/plastic.jpg", plasticTex))
 		return EXIT_FAILURE;
 	//me
-	if (!bindTex("../../resources/textures/white.png", whiteTex))
+	if (!bindTex(filestart + "textures/white.png", whiteTex))
 		return EXIT_FAILURE;
 	// Sets the background color of the window to black (it will be implicitely used by glClear)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1024,9 +1031,11 @@ void UDestroyTexture(GLuint textureId)
 	glGenTextures(1, &textureId);
 }
 
-bool bindTex(const char* texFilename, GLuint& texToBind) {
+bool bindTex(string texFilename, GLuint& texToBind) {
 	stbi_set_flip_vertically_on_load(true);
-	if (!UCreateTexture(texFilename, texToBind))
+	char* file = new char[texFilename.length() + 1];
+	strcpy_s(file, texFilename.length() + 1, texFilename.c_str());
+	if (!UCreateTexture(file, texToBind))
 	{
 		cout << "Failed to load texture " << texFilename << endl;
 		//system("PAUSE");
