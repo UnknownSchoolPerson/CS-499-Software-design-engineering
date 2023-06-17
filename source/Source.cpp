@@ -97,15 +97,15 @@ namespace
 	//m::vec3 gObjectColor(0.6f, 0.5f, 0.75f);
 	//glm::vec3 gObjectColor(1.f, 0.2f, 0.0f);
 	//https://www.tug.org/pracjourn/2007-4/walden/color.pdf
-	glm::vec3 gLightColor(1.0f, 1.0f, .4f);
-	glm::vec3 gSecondLightColor(1.0f, 1.0f, 1.0f);
 	//GLfloat specularIntensity = 0.8f;
 	//GLfloat highlightSize = 16.0f;
 
 	// Light position and scale
-	glm::vec3 gSecondLightPosition(-1.0f, 0.5f, 3.0f);
+	glm::vec3 gSecondLightPosition(-1.0f, 3.0f, 7.0f);
 	glm::vec3 gLightPosition(-2.0f, 4.5f, -5.0f);
 	glm::vec3 gLightScale(0.3f);
+	glm::vec3 gLightColor(1.0f, 1.0f, .4f);
+	glm::vec3 gSecondLightColor(1.0f, 1.0f, 1.0f);
 
 	//Shape Meshes from Professor Brian
 	//Meshes meshes;
@@ -186,9 +186,9 @@ const GLchar* fragmentShaderSource = GLSL(440,
     uniform bool ubHasTexture;
     uniform float ambientStrength = 0.1f; // Set ambient or global lighting strength
     uniform float specularIntensity1 = 0.1f;
-    uniform float highlightSize1 = 16.0f;
-    uniform float specularIntensity2 = 1.0f;
-    uniform float highlightSize2 = 16.0f;
+    uniform float highlightSize1 = 1.0f;
+    uniform float specularIntensity2 = 0.01f;
+    uniform float highlightSize2 = 1.0f;
 
     void main()
     {
@@ -260,10 +260,10 @@ int main(int argc, char* argv[])
 	//https://stackoverflow.com/questions/32136185/difference-between-strcpy-and-strcpy-s
 	// declaring character array (+1 for null terminator)
 	//https://commons.wikimedia.org/wiki/File:Red-brick-wall-texture-clean.jpg
-	if (!bindTex(filestart + "textures/brick-wall.jpg", planeTex))
+	if (!bindTex(filestart + "textures/Plane_Wood_Texture.jpg", planeTex))
 	{
 		filestart = "";
-		if (!bindTex(filestart + "textures/brick-wall.jpg", planeTex))
+		if (!bindTex(filestart + "textures/Plane_Wood_Texture.jpg", planeTex))
 			return EXIT_FAILURE;
 	}
 	//https://www.freepik.com/premium-photo/soy-wax-flakes-texture-closeup_36977469.htm
@@ -845,7 +845,7 @@ void URender(objectHandler &items)
 	glUniform3f(ambientColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
 	glUniform3f(light2ColorLoc, gSecondLightColor.r, gSecondLightColor.g, gSecondLightColor.b);
 	glUniform3f(lightColorLoc, gLightColor.r, gLightColor.g, gLightColor.b);
-	glUniform3f(light2PositionLoc, gSecondLightColor.x, gSecondLightColor.y, gSecondLightColor.z);
+	glUniform3f(light2PositionLoc, gSecondLightPosition.x, gSecondLightPosition.y, gSecondLightPosition.z);
 	glUniform3f(lightPositionLoc, gLightPosition.x, gLightPosition.y, gLightPosition.z);
 
 	const glm::vec3 cameraPosition = gCamera.Position;
