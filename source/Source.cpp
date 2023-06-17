@@ -67,7 +67,7 @@ namespace
 	GLuint gProgramId;
 
 	//Object Changer Vars
-	int vecSpot = 0;
+	size_t vecSpot = 0;
 	enum tool {
 		Rotate,
 		Scale,
@@ -1111,50 +1111,50 @@ void createObjects(objectHandler &items) {
 
 	//Box
 	//https://stackoverflow.com/questions/7351659/how-to-initialize-a-glmmat4-with-an-array
-	float *location = new float[16]{ 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.250000, -0.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, -1.000001, 1.224999, -2.999997, 1.000000 };
+	float *location = new float[16]{ 1.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.250000f, -0.000000f, 0.000000f, -0.000000f, 0.000000f, 1.000000f, 0.000000f, -1.000001f, 1.224999f, -2.999997f, 1.000000f };
 	model = glm::make_mat4(location);
 	items.addObject(model, greyTex, "box", gProgramId);
 	delete[] location;
 
-	location = new float[16] { 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.070436, -0.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, -1.000001, 1.065624, -2.999997, 1.000000 };
+	location = new float[16] { 1.000000f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, 0.070436f, -0.000000f, 0.000000f, -0.000000f, 0.000000f, 1.000000f, 0.000000f, -1.000001f, 1.065624f, -2.999997f, 1.000000f };
 	model = glm::make_mat4(location);
 	items.addObject(model, cyanTex, "box", gProgramId);
 	delete[] location;
 
-	location = new float[16] {1.000000, 0.000060, 0.000493, 0.000000, 0.000000, 0.021927, -0.037829, 0.000000, -0.000524, 0.115491, 0.940911, 0.000000, -1.000000, 1.455441, -3.068074, 1.000000};
+	location = new float[16] {1.000000f, 0.000060f, 0.000493f, 0.000000f, 0.000000f, 0.021927f, -0.037829f, 0.000000f, -0.000524f, 0.115491f, 0.940911f, 0.000000f, -1.000000f, 1.455441f, -3.068074f, 1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, cyanTex, "box", gProgramId);
 	delete[] location;
 
-	location = new float[16] {1.000002, 0.000000, -0.000000, 0.000000, 0.000001, 0.391620, -0.000002, 0.000000, -0.000000, -0.000000, 0.063039, 0.000000, -1.000002, 1.223701, -3.528664, 1.000000};
+	location = new float[16] {1.000002f, 0.000000f, -0.000000f, 0.000000f, 0.000001f, 0.391620f, -0.000002f, 0.000000f, -0.000000f, -0.000000f, 0.063039f, 0.000000f, -1.000002f, 1.223701f, -3.528664f, 1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, cyanTex, "box", gProgramId);
 	delete[] location;
 
 	// Jar
-	location = new float[16] {0.634311, 0.000000, -0.000000, 0.000000, 0.000000, 2.000000, 0.000000, 0.000000, -0.000000, -0.000000, 0.634311, 0.000000, -2.666669, 1.000000, -3.333334, 1.000000};
+	location = new float[16] {0.634311f, 0.000000f, -0.000000f, 0.000000f, 0.000000f, 2.000000f, 0.000000f, 0.000000f, -0.000000f, -0.000000f, 0.634311f, 0.000000f, -2.666669f, 1.000000f, -3.333334f, 1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, jarGlassTex, "cylinder", gProgramId);
 	delete[] location;
 
-	location = new float[16] {0.601270, 0.000000, 0.000000, 0.000000, 0.000000, -0.000000, -0.601270, 0.000000, 0.000000, 0.500000, 0.000000, 0.000000, -2.666669, 3.039999, -3.333334, 1.000000};
+	location = new float[16] {0.601270f, 0.000000f, 0.000000f, 0.000000f, 0.000000f, -0.000000f, -0.601270f, 0.000000f, 0.000000f, 0.500000f, 0.000000f, 0.000000f, -2.666669f, 3.039999f, -3.333334f, 1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, jarGlassTex, "torus", gProgramId);
 	delete[] location;
 
-	location = new float[16] {0.606061, 0.000000, -0.000000, 0.000000, 0.000000, 0.062500, 0.000000, 0.000000, -0.000000, -0.000000, 0.606061, 0.000000, -2.666669, 3.052499, -3.333334, 1.000000};
+	location = new float[16] {0.606061f, 0.000000f, -0.000000f, 0.000000f, 0.000000f, 0.062500f, 0.000000f, 0.000000f, -0.000000f, -0.000000f, 0.606061f, 0.000000f, -2.666669f, 3.052499f, -3.333334f, 1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, woodTex, "cylinder", gProgramId);
 	delete[] location;
 
 
 	//waxbox
-	location = new float[16] {1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.289664, 0.000000, 0.000000, 0.000000, 0.000000, 1.331000, 0.000000, 4.299999, 1.239302, 5.500000, 1.000000};
+	location = new float[16] {1.000000f,0.000000f,0.000000f,0.000000f,0.000000f,0.289664f,0.000000f,0.000000f,0.000000f,0.000000f,1.331000f,0.000000f,4.299999f,1.239302f,5.500000f,1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, plasticTex, "box", gProgramId);
 	delete[] location;
 
-	location = new float[16] {0.564474, 0.000000, 0.000000, 0.000000, 0.000000, 0.289664, 0.000000, 0.000000, 0.000000, 0.000000, 0.909091, 0.000000, 4.299999, 1.239302, 5.318182, 1.000000};
+	location = new float[16] {0.564474f,0.000000f,0.000000f,0.000000f,0.000000f,0.289664f,0.000000f,0.000000f,0.000000f,0.000000f,0.909091f,0.000000f,4.299999f,1.239302f,5.318182f,1.000000f};
 	model = glm::make_mat4(location);
 	items.addObject(model, whiteTex, "plane", gProgramId);
 	delete[] location;

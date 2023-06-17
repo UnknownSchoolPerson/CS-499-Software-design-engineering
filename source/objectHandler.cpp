@@ -184,10 +184,6 @@ void objectHandler::renderBox(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderObject::rebuildLocation() {
-    location = translation * rotation * scale;
-}
-
 unsigned int objectHandler::addObject(glm::mat4 location, GLuint texture, string objectType, GLuint gProgramId) {
     renderObject item(freeID++);
     item.location = location;
