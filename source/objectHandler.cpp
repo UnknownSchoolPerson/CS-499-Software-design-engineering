@@ -3,6 +3,8 @@
 #include <GL/glew.h>        // GLEW library
 #include <GLFW/glfw3.h>     // GLFW library
 #include <iostream>
+#include <windows.h>
+#include <shobjidl.h> 
 
 // GLM Math Header inclusions
 #include <glm/glm.hpp>
@@ -17,12 +19,12 @@ objectHandler::objectHandler() {
     meshes.CreateMeshes();
 };
 
-void objectHandler::renderPlane(objectHandler::renderObject item) {
+void objectHandler::renderPlane(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gPlaneMesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(item.gProgramId, item.objectColorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
 
@@ -33,12 +35,12 @@ void objectHandler::renderPlane(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderTorus(objectHandler::renderObject item) {
+void objectHandler::renderTorus(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gTorusMesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(item.gProgramId, objectColorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -49,12 +51,12 @@ void objectHandler::renderTorus(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderCylinder(objectHandler::renderObject item) {
+void objectHandler::renderCylinder(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gCylinderMesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     //https://www.tug.org/pracjourn/2007-4/walden/color.pdf
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.8f, 1.0f, 0.9f, 1.0f);
 
@@ -68,13 +70,13 @@ void objectHandler::renderCylinder(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderSphere(objectHandler::renderObject item) {
+void objectHandler::renderSphere(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gSphereMesh.vao);
 
     // Model matrix: transformations are applied right-to-left order
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -85,12 +87,12 @@ void objectHandler::renderSphere(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderTaperedCylinder(objectHandler::renderObject item) {
+void objectHandler::renderTaperedCylinder(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gTaperedCylinderMesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
 
@@ -103,12 +105,12 @@ void objectHandler::renderTaperedCylinder(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderCone(objectHandler::renderObject item) {
+void objectHandler::renderCone(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gConeMesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 1.0f, 0.0f, 1.0f, 1.0f);
 
@@ -120,12 +122,12 @@ void objectHandler::renderCone(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderPrism(objectHandler::renderObject item) {
+void objectHandler::renderPrism(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gPrismMesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.0f, 0.5f, 1.0f);
 
@@ -136,12 +138,12 @@ void objectHandler::renderPrism(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderPyramid(objectHandler::renderObject item) {
+void objectHandler::renderPyramid(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gPyramid4Mesh.vao);
     //// Model matrix: transformations are applied right-to-left order
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.5f, 0.0f, 0.5f, 1.0f);
 
@@ -152,12 +154,12 @@ void objectHandler::renderPyramid(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderPyramid3(objectHandler::renderObject item) {
+void objectHandler::renderPyramid3(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gPyramid3Mesh.vao);
 
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(gProgramId, objectColorLoc, 0.0f, 0.5f, 0.5f, 1.0f);
 
@@ -168,12 +170,12 @@ void objectHandler::renderPyramid3(objectHandler::renderObject item) {
     glBindVertexArray(0);
 }
 
-void objectHandler::renderBox(objectHandler::renderObject item) {
+void objectHandler::renderBox(objectHandler::renderObject* item) {
     // Activate the VBOs contained within the mesh's VAO
     glBindVertexArray(meshes.gBoxMesh.vao);
-    GLint objectColorLoc = glGetUniformLocation(item.gProgramId, "objectColor");
-    glm::mat4 model = item.location;
-    glUniformMatrix4fv(item.modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    GLint objectColorLoc = glGetUniformLocation(item->gProgramId, "objectColor");
+    glm::mat4 model = item->location;
+    glUniformMatrix4fv(item->modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     //glProgramUniform4f(item.gProgramId, objectColorLoc, 0.5f, 0.5f, 0.0f, 1.0f);
 
@@ -185,28 +187,35 @@ void objectHandler::renderBox(objectHandler::renderObject item) {
 }
 
 unsigned int objectHandler::addObject(glm::mat4 location, GLuint texture, string objectType, GLuint gProgramId) {
-    renderObject item(freeID++);
-    item.location = location;
-    item.texture = texture;
+    renderObject* item = new renderObject(freeID++);
+    item->location = location;
+    item->renderTexture = texture;
+    item->origTexture = texture;
+    refTex(texture);
     for (int i = 0; i < objectType.length(); i++)
         objectType[i] = tolower(objectType[i]);
     if (!strToMesh.count(objectType))
         throw invalid_argument("Invalid objectType");
-    item.mesh = strToMesh[objectType];
-    item.modelLoc = glGetUniformLocation(gProgramId, "model");
+    item->mesh = strToMesh[objectType];
+    item->modelLoc = glGetUniformLocation(gProgramId, "model");
     //item.viewLoc = glGetUniformLocation(gProgramId, "view");
     //item.projLoc = glGetUniformLocation(gProgramId, "projection");
     //item.objectColorLoc = glGetUniformLocation(gProgramId, "uObjectColor");
     objectList.push_back(item);
-    return item.uniqueID;
+    return item->uniqueID;
+}
+
+GLuint* objectHandler::getObjectTex(size_t index)
+{
+    return &(objectList[index]->renderTexture);
 }
 
 void objectHandler::renderAll() {
     for (auto& item : objectList) {
         // bind textures on corresponding texture units
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, item.texture);
-        switch (item.mesh)
+        glBindTexture(GL_TEXTURE_2D, item->renderTexture);
+        switch (item->mesh)
         {
             case Plane:
                 renderPlane(item);
@@ -244,10 +253,45 @@ void objectHandler::renderAll() {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
+
+void objectHandler::bindTexture(GLuint newTex, size_t selectedObject) {
+    refTex(newTex);
+    decRefTex(objectList[selectedObject]->origTexture);
+    objectList[selectedObject]->origTexture = newTex;
+    objectList[selectedObject]->renderTexture = newTex;
+    return;
+}
+
+void objectHandler::refTex(GLuint tex) {
+    auto it = texRef.find(tex);
+    if (it != texRef.end())
+    {
+        texRef[tex]++;
+    }
+    else {
+        texRef[tex] = 1;
+    }
+}
+
+void objectHandler::decRefTex(GLuint tex) {
+    texRef[tex]--;
+    if (texRef[tex] == 0)
+    {
+        cout << "texture# " << tex << " was deleted." << endl;
+        glGenTextures(1, &tex);
+    }
+}
+
+void objectHandler::deleteObject(size_t selectedObject) {
+    auto item = objectList.at(selectedObject);
+    objectList.erase(objectList.begin() + selectedObject);
+    decRefTex(item->origTexture);
+}
+
 objectHandler::~objectHandler() {
     meshes.DestroyMeshes();
     for (auto& item : objectList) {
-        glGenTextures(1, &item.texture);
+        glGenTextures(1, &item->origTexture);
     }
     //cout << "called" << endl;
 }

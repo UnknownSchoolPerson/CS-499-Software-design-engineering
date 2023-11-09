@@ -5,6 +5,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>      // Image loading Utility functions
 #include "objectHandler.h"
+#include <locale>
+#include <codecvt>
+
 
 // GLM Math Header inclusions
 #include <glm/glm.hpp>
@@ -28,7 +31,7 @@ using namespace std; // Standard namespace
 // Unnamed namespace
 namespace
 {
-	const char* const WINDOW_TITLE = "4-5 Milestone CS-330"; // Macro for window title
+	const char* const WINDOW_TITLE = "CS 499"; // Macro for window title
 
 	// For speed scaling
 	float speedOffset = 1.0f;
@@ -74,7 +77,7 @@ namespace
 		Translation
 	};
 	tool currentTool = Rotate;
-	GLuint prevTex;
+	//GLuint prevTex;
 	bool enableSelectedTex = false;
 	float changeBy = 1.0;
 	float stepBy = 1.0;
@@ -133,6 +136,7 @@ bool bindTex(string texFilename, GLuint& texToBind);
 void createObjects(objectHandler &items);
 void createTestObjects(objectHandler& items);
 void objectChanger(objectHandler& items, int key);
+void openTexture(objectHandler& items);
 
 
 /* Vertex Shader Source Code*/
@@ -324,6 +328,8 @@ int main(int argc, char* argv[])
 	cout << "X - Dump selected object Matrix" << endl;
 	cout << "C - Change Object Shape" << endl;
 	cout << "V - Spawn Object (Always at 5, 5, 0 with no changes, make sure to look up!)" << endl;
+	cout << "Insert - Change selected object texture" << endl;
+	cout << "Delete - Delete Object" << endl;
 
 
 
@@ -424,6 +430,14 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	// My code
+	if (glfwGetKey(window, GLFW_KEY_INSERT) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_INSERT] = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_RELEASE)
+	{
+		keyUp[GLFW_KEY_DELETE] = true;
+	}
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE)
 	{
 		keyUp[GLFW_KEY_P] = true;
@@ -534,6 +548,26 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		gCamera.ProcessKeyboard(DOWN, speed);
 
+	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS && keyUp[GLFW_KEY_V])
+	{
+		keyUp[GLFW_KEY_V] = false;
+		// 1. Scales the object
+		glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
+		// 2. Rotate the object
+		glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		// 3. Position the object
+		glm::mat4 translation = glm::translate(glm::vec3(5.0f, 5.0f, 0.0f));
+		// Model matrix: transformations are applied right-to-left order
+		glm::mat4 model = translation * rotation * scale;
+		items.addObject(model, glassTex, "box", gProgramId);
+		cout << "Object Spawned! Look up!" << endl;
+	}
+
+	if (items.getObjectListSize() == 0)
+	{
+		return;
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && keyUp[GLFW_KEY_MINUS])
 	{
 		keyUp[GLFW_KEY_MINUS] = false;
@@ -572,27 +606,26 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		if (enableSelectedTex) {
 			cout << "Selected Texture Off" << endl;
 			enableSelectedTex = false;
-			items.getObjectList()->at(vecSpot).texture = prevTex;
+			*(items.getObjectTex(vecSpot)) = items.getOrigTexture(vecSpot);
 		}
 		else {
 			cout << "Selected Texture On" << endl;
 			enableSelectedTex = true;
-			items.getObjectList()->at(vecSpot).texture = selectedTex;
+			*(items.getObjectTex(vecSpot)) = selectedTex;
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS && keyUp[GLFW_KEY_LEFT_BRACKET])
 	{
 		keyUp[GLFW_KEY_LEFT_BRACKET] = false;
 		if (enableSelectedTex)
-			items.getObjectList()->at(vecSpot).texture = prevTex;
+			*(items.getObjectTex(vecSpot)) = items.getOrigTexture(vecSpot);
 		//vecSpot--;
 		if (vecSpot == 0)
-			vecSpot = items.getObjectList()->size() - 1;
+			vecSpot = items.getObjectListSize() - 1;
 		else
 			vecSpot--;
 		if (enableSelectedTex) {
-			prevTex = items.getObjectList()->at(vecSpot).texture;
-			items.getObjectList()->at(vecSpot).texture = selectedTex;
+			*(items.getObjectTex(vecSpot)) = selectedTex;
 		}
 		cout << "Current Object is " << vecSpot << endl;
 	}
@@ -600,13 +633,13 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	{
 		keyUp[GLFW_KEY_RIGHT_BRACKET] = false;
 		if (enableSelectedTex)
-			items.getObjectList()->at(vecSpot).texture = prevTex;
+			*(items.getObjectTex(vecSpot)) = items.getOrigTexture(vecSpot);
 		vecSpot++;
-		if (vecSpot == items.getObjectList()->size())
+		auto listSize = items.getObjectListSize();
+		if (vecSpot == listSize)
 			vecSpot = 0;
 		if (enableSelectedTex) {
-			prevTex = items.getObjectList()->at(vecSpot).texture;
-			items.getObjectList()->at(vecSpot).texture = selectedTex;
+			*(items.getObjectTex(vecSpot)) = selectedTex;
 		}
 		cout << "Current Object is " << vecSpot << endl;
 	}
@@ -685,35 +718,43 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		keyUp[GLFW_KEY_C] = false;
 		objectChanger(items, GLFW_KEY_C);
 	}
-	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS && keyUp[GLFW_KEY_V])
+	if (glfwGetKey(window, GLFW_KEY_INSERT) == GLFW_PRESS && keyUp[GLFW_KEY_INSERT])
 	{
-		keyUp[GLFW_KEY_V] = false;
-		// 1. Scales the object
-		glm::mat4 scale = glm::scale(glm::vec3(1.0f, 1.0f, 1.0f));
-		// 2. Rotate the object
-		glm::mat4 rotation = glm::rotate(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-		// 3. Position the object
-		glm::mat4 translation = glm::translate(glm::vec3(5.0f, 5.0f, 0.0f));
-		// Model matrix: transformations are applied right-to-left order
-		glm::mat4 model = translation * rotation * scale;
-		items.addObject(model, glassTex, "box", gProgramId);
-		cout << "Object Spawned! Look up!" << endl;
+		keyUp[GLFW_KEY_INSERT] = false;
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		openTexture(items);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+	if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS && keyUp[GLFW_KEY_DELETE])
+	{
+		keyUp[GLFW_KEY_DELETE] = false;
+		items.deleteObject(vecSpot);
+		auto listSize = items.getObjectListSize();
+		if (listSize != 0) {
+			if (vecSpot >= listSize)
+				vecSpot--;
+			if (enableSelectedTex)
+				*(items.getObjectTex(vecSpot)) = selectedTex;
+		}
+		else {
+			cout << "Spawn something!" << endl;
+		}
+		cout << "Current Object is " << vecSpot << endl;
 	}
 }
 
 void objectChanger(objectHandler& items, int key) {
-	auto* vec = items.getObjectList();
 	if (key == GLFW_KEY_X) {
-		cout << glm::to_string(vec->at(vecSpot).location) << std::endl;
+		cout << glm::to_string(*(items.getObjectMatrix(vecSpot))) << std::endl;
 		return;
 	}
 	if (key == GLFW_KEY_C) {
-
-		int num = vec->at(vecSpot).mesh;
+		auto* mesh = items.getObjectType(vecSpot);
+		int num = *mesh;
 		num++;
 		if (num >= 10)
 			num = 0;
-		vec->at(vecSpot).mesh = objectHandler::meshShape(num);
+		*mesh = objectHandler::meshShape(num);
 		cout << "Object shape is now " << num << endl;
 		return;
 	}
@@ -743,10 +784,11 @@ void objectChanger(objectHandler& items, int key) {
 	// If nothing is being changed, pass
 	if (x + y + z == 0)
 		return;
+	auto location = items.getObjectMatrix(vecSpot);
 	switch (currentTool) {
 		case Rotate:
 			//https://www.reddit.com/r/opengl/comments/sih6lc/4x4_matrix_to_position_rotation_and_scale/
-			glm::vec3 position = vec->at(vecSpot).location[3]; // 4th column of the model matrix
+			glm::vec3 position = (*location)[3]; // 4th column of the model matrix
 			if (!editX)
 				position.x = 0.0;
 			if (!editY)
@@ -757,17 +799,17 @@ void objectChanger(objectHandler& items, int key) {
 				return; //This is a bug. Object breaks rotating at a 0 axis.
 			//https://stackoverflow.com/questions/8844585/glm-rotate-usage-in-opengl
 			if (key == GLFW_KEY_1)
-				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location, glm::radians(changeBy), glm::vec3(position.x, position.y, position.z));
+				*location = glm::rotate(*location, glm::radians(changeBy), glm::vec3(position.x, position.y, position.z));
 			else
-				vec->at(vecSpot).location = glm::rotate(vec->at(vecSpot).location, glm::radians(-changeBy), glm::vec3(position.x, position.y, position.z));
-			//glm::vec3 position = vec->at(vecSpot).location[3]; // 4th column of the model matrix
+				*location = glm::rotate(*location, glm::radians(-changeBy), glm::vec3(position.x, position.y, position.z));
+			//glm::vec3 position = *location[3]; // 4th column of the model matrix
 			//cout << position.x << endl;
 			return;
 		case Translation:
 			if (key == GLFW_KEY_1)
-				vec->at(vecSpot).location = glm::translate(vec->at(vecSpot).location, glm::vec3(x, y, z));
+				*location = glm::translate(*location, glm::vec3(x, y, z));
 			else
-				vec->at(vecSpot).location = glm::translate(vec->at(vecSpot).location, glm::vec3(-x, -y, -z));
+				*location = glm::translate(*location, glm::vec3(-x, -y, -z));
 			return;
 		case Scale:
 			if (x < 1.0)
@@ -777,9 +819,9 @@ void objectChanger(objectHandler& items, int key) {
 			if (z < 1.0)
 				z = 1.0;
 			if (key == GLFW_KEY_1)
-				vec->at(vecSpot).location = glm::scale(vec->at(vecSpot).location, glm::vec3(x, y, z));
+				*location = glm::scale(*location, glm::vec3(x, y, z));
 			else
-				vec->at(vecSpot).location = glm::scale(vec->at(vecSpot).location, glm::vec3(1.0f / x, 1.0f / y, 1.0f / z));
+				*location = glm::scale(*location, glm::vec3(1.0f / x, 1.0f / y, 1.0f / z));
 			return;
 		default:
 			return;
@@ -1037,10 +1079,16 @@ bool bindTex(string texFilename, GLuint& texToBind) {
 	stbi_set_flip_vertically_on_load(true);
 	char* file = new char[texFilename.length() + 1];
 	strcpy_s(file, texFilename.length() + 1, texFilename.c_str());
-	if (!UCreateTexture(file, texToBind))
-	{
+	try {
+		if (!UCreateTexture(file, texToBind))
+		{
+			cout << "Failed to load texture " << texFilename << endl;
+			//system("PAUSE");
+			return false;
+		}
+	}
+	catch (...) {
 		cout << "Failed to load texture " << texFilename << endl;
-		//system("PAUSE");
 		return false;
 	}
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
@@ -1164,7 +1212,7 @@ void createObjects(objectHandler &items) {
 
 
 
-	prevTex = items.getObjectList()->at(0).texture;
+	//prevTex = items.getObjectList()->at(0).renderTexture;
 }
 
 void createTestObjects(objectHandler& items) {
@@ -1237,4 +1285,77 @@ void createTestObjects(objectHandler& items) {
 	// Model matrix: transformations are applied right-to-left order
 	model = translation * rotation * scale;
 	items.addObject(model, glassTex, "box", gProgramId);
+}
+
+void openTexture(objectHandler& items) {
+	// https://learn.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
+	// https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
+	// https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifiledialog-setfiletypes
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
+		COINIT_DISABLE_OLE1DDE);
+	if (SUCCEEDED(hr))
+	{
+		IFileOpenDialog* pFileOpen;
+
+		// Create the FileOpenDialog object.
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+			IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+		if (SUCCEEDED(hr))
+		{
+			// Filter List
+			COMDLG_FILTERSPEC c_rgSaveTypes[] =
+			{
+				{ L"Pictures", L"*.png"},
+				{ L"All", L"*.*"},
+			};
+			// Set the file types to display only. 
+			// Notice that this is a 1-based array.
+			hr = pFileOpen->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
+			if (SUCCEEDED(hr)) {
+				// Show the Open dialog box.
+				hr = pFileOpen->Show(NULL);
+
+				// Get the file name from the dialog box.
+				if (SUCCEEDED(hr))
+				{
+					IShellItem* pItem;
+					hr = pFileOpen->GetResult(&pItem);
+					if (SUCCEEDED(hr))
+					{
+						PWSTR pszFilePath;
+						hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+						// Display the file name to the user.
+						if (SUCCEEDED(hr))
+						{
+							// https://stackoverflow.com/questions/4804298/how-to-convert-wstring-into-string
+							//setup converter
+							using convert_type = codecvt_utf8<wchar_t>;
+							wstring_convert<convert_type, wchar_t> converter;
+							wstring filePath = pszFilePath;
+							//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+							std::string converted_str = converter.to_bytes(filePath);
+							GLuint newTex;
+							if (bindTex(converted_str, newTex))
+							{
+								*(items.getObjectTex(vecSpot)) = newTex;
+								items.bindTexture(newTex, vecSpot);
+								cout << "A new texture was created with ID: " << newTex << endl;
+							}
+							else
+							{
+								cout << "Texture Creation Failed." << endl;
+							}
+							CoTaskMemFree(pszFilePath);
+						}
+						pItem->Release();
+					}
+				}
+				pFileOpen->Release();
+			}
+		}
+		CoUninitialize();
+	}
+	return;
 }
