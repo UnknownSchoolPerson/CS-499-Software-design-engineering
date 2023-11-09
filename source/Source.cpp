@@ -585,9 +585,11 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		keyUp[GLFW_KEY_LEFT_BRACKET] = false;
 		if (enableSelectedTex)
 			items.getObjectList()->at(vecSpot).texture = prevTex;
-		vecSpot--;
-		if (vecSpot < 0)
+		//vecSpot--;
+		if (vecSpot == 0)
 			vecSpot = items.getObjectList()->size() - 1;
+		else
+			vecSpot--;
 		if (enableSelectedTex) {
 			prevTex = items.getObjectList()->at(vecSpot).texture;
 			items.getObjectList()->at(vecSpot).texture = selectedTex;
