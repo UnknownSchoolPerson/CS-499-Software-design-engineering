@@ -187,20 +187,25 @@ void objectHandler::renderBox(objectHandler::renderObject* item) {
 }
 
 unsigned int objectHandler::addObject(glm::mat4 location, GLuint texture, string objectType, GLuint gProgramId) {
+    // Create new object and bind everything
     renderObject* item = new renderObject(freeID++);
     item->location = location;
     item->renderTexture = texture;
     item->origTexture = texture;
     refTex(texture);
+    // lowercase texture name to find
     for (int i = 0; i < objectType.length(); i++)
         objectType[i] = tolower(objectType[i]);
     if (!strToMesh.count(objectType))
         throw invalid_argument("Invalid objectType");
+    // Assign object mesh
     item->mesh = strToMesh[objectType];
+    // Create model matrix
     item->modelLoc = glGetUniformLocation(gProgramId, "model");
     //item.viewLoc = glGetUniformLocation(gProgramId, "view");
     //item.projLoc = glGetUniformLocation(gProgramId, "projection");
     //item.objectColorLoc = glGetUniformLocation(gProgramId, "uObjectColor");
+    // Add to list
     objectList.push_back(item);
     return item->uniqueID;
 }
@@ -255,14 +260,20 @@ void objectHandler::renderAll() {
 }
 
 void objectHandler::bindTexture(GLuint newTex, size_t selectedObject) {
+    // Reference new texture
     refTex(newTex);
+    // Remove old texture
     decRefTex(objectList[selectedObject]->origTexture);
+    // Assign new texture
     objectList[selectedObject]->origTexture = newTex;
     objectList[selectedObject]->renderTexture = newTex;
     return;
 }
 
 void objectHandler::refTex(GLuint tex) {
+    // find the texture in the vector
+    // If it is there add to it
+    // If it isn't create it
     auto it = texRef.find(tex);
     if (it != texRef.end())
     {
@@ -274,7 +285,9 @@ void objectHandler::refTex(GLuint tex) {
 }
 
 void objectHandler::decRefTex(GLuint tex) {
+    // Remove reference from texture
     texRef[tex]--;
+    // If nothing refers to it, free it
     if (texRef[tex] == 0)
     {
         cout << "texture# " << tex << " was deleted." << endl;
@@ -283,7 +296,9 @@ void objectHandler::decRefTex(GLuint tex) {
 }
 
 void objectHandler::deleteObject(size_t selectedObject) {
+    // Get the object at index
     auto item = objectList.at(selectedObject);
+    // Remove it and it's texture
     objectList.erase(objectList.begin() + selectedObject);
     decRefTex(item->origTexture);
 }

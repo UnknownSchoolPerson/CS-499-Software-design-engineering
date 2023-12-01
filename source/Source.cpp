@@ -300,7 +300,7 @@ int main(int argc, char* argv[])
 	//me
 	if (!bindTex(filestart + "textures/white.png", whiteTex))
 		return EXIT_FAILURE;
-	// Sets the background color of the window to black (it will be implicitely used by glClear)
+	// Sets the background color of the window to black (it will be implicitly used by glClear)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Putting this into unnamed namespace cause problems. IDK why. Here my fix.
 	objectHandler items;
@@ -425,11 +425,15 @@ bool UInitialize(int argc, char* argv[], GLFWwindow** window)
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 void UProcessInput(GLFWwindow* window, objectHandler& items)
 {
+	// Timing required by alot of stuff
 	float speed = gDeltaTime * speedOffset;
-
+	// Check if we want to close the program
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	// My code
+	// Starting here, all this code is for making sure we only process a key being held down once
+	// (Except for camera)
+	// This will check when the key was released and assign the correct index
 	if (glfwGetKey(window, GLFW_KEY_INSERT) == GLFW_RELEASE)
 	{
 		keyUp[GLFW_KEY_INSERT] = true;
@@ -515,9 +519,14 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	{
 		keyUp[GLFW_KEY_C] = true;
 	}
+	// End held key press check
+	// For everything down here (Besides camera), this checks if a key is pressed and
+	// is wasn't processed already.
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && keyUp[GLFW_KEY_P])
 	{
+		// Process to create a 2D view
 		keyUp[GLFW_KEY_P] = false;
+		// Lock the camera into a staic place
 		if (!gLockCamera)
 		{
 			gLockCamera = true;
@@ -533,8 +542,10 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 	}
 	if (gLockCamera)
 		return;
+	// Shift speeds up the camera
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		speed = gDeltaTime * 40.0f;
+	// Movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		gCamera.ProcessKeyboard(FORWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -547,7 +558,8 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		gCamera.ProcessKeyboard(UP, speed);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		gCamera.ProcessKeyboard(DOWN, speed);
-
+	// End movement
+	// Spawn an object
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS && keyUp[GLFW_KEY_V])
 	{
 		keyUp[GLFW_KEY_V] = false;
@@ -562,12 +574,13 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		items.addObject(model, glassTex, "box", gProgramId);
 		cout << "Object Spawned! Look up!" << endl;
 	}
-
+	// Processing anything below with no object will cause a crash
+	// So lets not try to process anything
 	if (items.getObjectListSize() == 0)
 	{
 		return;
 	}
-
+	// Decrease Change by
 	if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS && keyUp[GLFW_KEY_MINUS])
 	{
 		keyUp[GLFW_KEY_MINUS] = false;
@@ -576,6 +589,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			changeBy = 0.0f;
 		cout << "Current Change is " << changeBy << endl;
 	}
+	// Increase Change by
 	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS && keyUp[GLFW_KEY_EQUAL])
 	{
 		keyUp[GLFW_KEY_EQUAL] = false;
@@ -584,6 +598,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			changeBy = 10.0f;
 		cout << "Current Change is " << changeBy << endl;
 	}
+	// Decrease Step
 	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS && keyUp[GLFW_KEY_9])
 	{
 		keyUp[GLFW_KEY_9] = false;
@@ -592,6 +607,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			stepBy = 0.0001f;
 		cout << "Current Step is " << stepBy << endl;
 	}
+	// Increase Step
 	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS && keyUp[GLFW_KEY_0])
 	{
 		keyUp[GLFW_KEY_0] = false;
@@ -600,6 +616,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			stepBy = 10.0f;
 		cout << "Current Step is " << stepBy << endl;
 	}
+	// Enable/Disable Selected Object Texture
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS && keyUp[GLFW_KEY_Z])
 	{
 		keyUp[GLFW_KEY_Z] = false;
@@ -614,6 +631,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			*(items.getObjectTex(vecSpot)) = selectedTex;
 		}
 	}
+	// Change Object foward
 	if (glfwGetKey(window, GLFW_KEY_LEFT_BRACKET) == GLFW_PRESS && keyUp[GLFW_KEY_LEFT_BRACKET])
 	{
 		keyUp[GLFW_KEY_LEFT_BRACKET] = false;
@@ -629,6 +647,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		}
 		cout << "Current Object is " << vecSpot << endl;
 	}
+	// Change Object backward
 	if (glfwGetKey(window, GLFW_KEY_RIGHT_BRACKET) == GLFW_PRESS && keyUp[GLFW_KEY_RIGHT_BRACKET])
 	{
 		keyUp[GLFW_KEY_RIGHT_BRACKET] = false;
@@ -644,39 +663,46 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		cout << "Current Object is " << vecSpot << endl;
 	}
 	//https://gist.github.com/donaldmunro/38841d72c65a1c32f2bf83a4a00a2c9a
+	// Dump selected object Matrix
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && keyUp[GLFW_KEY_X])
 	{
 		keyUp[GLFW_KEY_X] = false;
 		objectChanger(items, GLFW_KEY_X);
 	}
+	// Add to current object with selected tool
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && keyUp[GLFW_KEY_1])
 	{
 		keyUp[GLFW_KEY_1] = false;
 		objectChanger(items, GLFW_KEY_1);
 	}
+	// Subtract from current object with selected tool
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && keyUp[GLFW_KEY_2])
 	{
 		keyUp[GLFW_KEY_2] = false;
 		objectChanger(items, GLFW_KEY_2);
 	}
+	// Change to Rotate (Current Tool)
 	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS && keyUp[GLFW_KEY_3])
 	{
 		keyUp[GLFW_KEY_3] = false;
 		cout << "Current tool is Rotate" << endl;
 		currentTool = Rotate;
 	}
+	// Change to Translation
 	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS && keyUp[GLFW_KEY_4])
 	{
 		keyUp[GLFW_KEY_4] = false;
 		cout << "Current tool is Translation" << endl;
 		currentTool = Translation;
 	}
+	// Change to Scale
 	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS && keyUp[GLFW_KEY_5])
 	{
 		keyUp[GLFW_KEY_5] = false;
 		cout << "Current tool is Scale" << endl;
 		currentTool = Scale;
 	}
+	//  Enable/Disable Edit X
 	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS && keyUp[GLFW_KEY_6])
 	{
 		keyUp[GLFW_KEY_6] = false;
@@ -689,6 +715,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			editX = true;
 		}
 	}
+	// Enable/Disable Edit Y
 	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS && keyUp[GLFW_KEY_7])
 	{
 		keyUp[GLFW_KEY_7] = false;
@@ -701,6 +728,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			editY = true;
 		}
 	}
+	// Enable/Disable Edit Z
 	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS && keyUp[GLFW_KEY_8])
 	{
 		keyUp[GLFW_KEY_8] = false;
@@ -713,11 +741,13 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 			editZ = true;
 		}
 	}
+	// Change Object Shape
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && keyUp[GLFW_KEY_C])
 	{
 		keyUp[GLFW_KEY_C] = false;
 		objectChanger(items, GLFW_KEY_C);
 	}
+	// Change selected object texture
 	if (glfwGetKey(window, GLFW_KEY_INSERT) == GLFW_PRESS && keyUp[GLFW_KEY_INSERT])
 	{
 		keyUp[GLFW_KEY_INSERT] = false;
@@ -725,6 +755,7 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 		openTexture(items);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
+	// Delete Object
 	if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS && keyUp[GLFW_KEY_DELETE])
 	{
 		keyUp[GLFW_KEY_DELETE] = false;
@@ -744,13 +775,16 @@ void UProcessInput(GLFWwindow* window, objectHandler& items)
 }
 
 void objectChanger(objectHandler& items, int key) {
+	// Dump selected object Matrix
 	if (key == GLFW_KEY_X) {
 		cout << glm::to_string(*(items.getObjectMatrix(vecSpot))) << std::endl;
 		return;
 	}
+	// Change Object Shape
 	if (key == GLFW_KEY_C) {
 		auto* mesh = items.getObjectType(vecSpot);
 		int num = *mesh;
+		// Since the mesh is an enum, we can just change the number
 		num++;
 		if (num >= 10)
 			num = 0;
@@ -795,8 +829,8 @@ void objectChanger(objectHandler& items, int key) {
 				position.y = 0.0;
 			if (!editZ)
 				position.z = 0.0;
-			if (position.x == 0.0 && position.y == 0.0 && position.z == 0.0)
-				return; //This is a bug. Object breaks rotating at a 0 axis.
+			if (position.x == 0.0 && position.y == 0.0 && position.z == 0.0)// This is a bug. Object breaks rotating at a 0 axis.
+				return; 
 			//https://stackoverflow.com/questions/8844585/glm-rotate-usage-in-opengl
 			if (key == GLFW_KEY_1)
 				*location = glm::rotate(*location, glm::radians(changeBy), glm::vec3(position.x, position.y, position.z));
