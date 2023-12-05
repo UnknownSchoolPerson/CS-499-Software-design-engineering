@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7-1 Project One cs-330", "source\module\module.vcxproj", "{91C45A29-3AA7-4BFF-A967-072AE362285C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cs-499 - Software design engineering", "source\module\module.vcxproj", "{91C45A29-3AA7-4BFF-A967-072AE362285C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7-1 Project One cs-330", "7-1 Project One cs-330", "{54D788D5-8F6F-4760-8177-9396EA4DAB10}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cs-499 - Software design engineering", "cs-499 - Software design engineering", "{54D788D5-8F6F-4760-8177-9396EA4DAB10}"
 	ProjectSection(SolutionItems) = preProject
 		resources\textures\brick-wall.jpg = resources\textures\brick-wall.jpg
 		resources\textures\cyan.png = resources\textures\cyan.png

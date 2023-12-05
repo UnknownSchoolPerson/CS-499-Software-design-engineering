@@ -31,7 +31,7 @@ using namespace std; // Standard namespace
 // Unnamed namespace
 namespace
 {
-	const char* const WINDOW_TITLE = "CS 499"; // Macro for window title
+	const char* const WINDOW_TITLE = "CS 499 - Software design/engineering"; // Macro for window title
 
 	// For speed scaling
 	float speedOffset = 1.0f;
